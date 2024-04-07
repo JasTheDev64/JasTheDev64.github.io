@@ -1,0 +1,184 @@
+
+/* html */ /* the webpage */
+/* { */
+/* } */
+
+body /* the webpage body */
+{
+    margin: 0px 0px 0px 0px; /* padding - top | right | bottom | left */
+    padding: 0px 0px 0px 0px; /* padding - top | right | bottom | left */
+    font-family: "arial"; /* the font of the webpage */
+    font-size: 14px; /* the font size of the webpage */
+}
+
+.nav-bar /* navigation bar */
+{
+    list-style-type: none; /* no list markers */
+    margin: 0; /* no space around border */
+    padding: 2px 0px 2px 0px; /* no padding around elements */
+    overflow: hidden; /* any overflow is hidden */
+    border: solid; /* solid border */
+    border-width: 0px 0px 1px 0px; /* 1 pixel border at bottom */
+    border-color: rgb(100, 150, 215); /* border color */
+    background-color: rgb(250, 250, 255); /* background color */
+    width: 100%; /* full width */
+    height: 36px; /* 36 pixel height */
+}
+
+.logo /* the logo */
+{
+    max-width: 36px; /* max logo width is 36 pixels */
+    max-height: 36px; /* max logo height is 36 pixels */
+    padding-left: 5px; /* padding on the left side */
+}
+
+.nav-entry /* navigation entries */
+{
+    float: left; /* entries float towards left of the nav bar container */
+}
+
+.nav-entry a /* navigation entry text */
+{
+    display: block; /* display the link as a block - allows specifying the width, height, padding, margins, etc. */
+    color: rgb(0, 0, 0); /* color of the link text */
+    text-align: center; /* align text to the center */
+    padding: 0px 16px 0px 16px; /* padding - top | right | bottom | left */
+    text-decoration: none; /* text decoration */
+    height: 36px; /* height is 36 pixels */
+    line-height: 36px; /* same as height to offset to middle */
+    margin: 0px 2px 0px 2px; /* margin around entries */
+}
+
+.nav-entry a:hover /* navigation entry text (on hover) */
+{
+    color: rgb(255, 255, 255); /* color of the link text */
+    background-color: rgb(100, 150, 215); /* background color of this element */
+}
+
+.nav-entry a:active /* navigation entry text (when active) */
+{
+    border: solid; /* solid style */
+    border-width: 0px 0px 2px 0px; /* 2 pixel border at bottom */
+    border-color: rgb(100, 150, 215); /* color */
+}
+
+.main /* the main container */
+{
+    margin: 0; /* no margins */
+    padding: 5px 0px 0px 0px; /* 5 pixels of padding between navigation bar and content */
+    width: 100%; /* the main container takes up the entire width of the body */
+    height: 100%; /* the main container takes up the entire height of the body */
+    min-height: 100%; /* force to take up entire height */
+}
+
+.post /* post continer */
+{
+    display: inline-block; /* display as inline block */
+    width: 100%; /* take up 100% of the parent container width */
+    margin-left: auto; /* center this container inside the parent container */
+    margin-right: auto; /* center this container inside the parent container */
+    margin-bottom: 10px; /* padding of 10 pixels between the posts */
+    border: 1px solid rgb(100, 150, 215); /* 1 pixel border */
+    padding: 5px; /* 5px padding between container frame and the text */
+}
+
+.content /* the content container */
+{
+    width: 80%; /* the content container needs to fill up 80% of the page */
+    height: 100%; /* the content container fills up the entire height of the page */
+    padding: 1%; /* padding between container frame and the text */
+    min-height: 100%; /* force to take up entire height */
+    border: 1px solid rgb(100, 150, 215); /* 1 pixel border */
+    margin-left: auto; /* center this container inside the main container */
+    margin-right: auto; /* center this container inside the main container */
+}
+
+.section_header /* section headers */
+{
+    width: 100%; /* 100% width */
+    font-size: 18px; /* larger font */
+    border: solid; /* solid style */
+    border-width: 0px 0px 1px 0px; /* 1 pixel border at bottom */
+    border-color: rgb(100, 150, 215); /* border color */
+    margin-bottom: 10px; /* 10 pixel margin below */
+}
+
+.animation-caption /* animation captions */
+{
+    display: block; /* display the link as a block - allows specifying the width, height, padding, margins, etc. */
+    padding: 5px; /* 5 pixel padding on sides */
+    border: solid; /* solid style */
+    border-width: 1px 0px 0px 0px; /* 1 pixel border at top */
+    border-color: rgb(100, 150, 215); /* border color */
+}
+
+.main-section /* main sections */
+{
+    display: grid;
+}
+
+.sub-section /* subsections */
+{
+    display: block; /* display as block */
+    width: 100%; /* use full width */
+}
+
+.sub-section-header /* subsection headers */
+{
+    display: block; /* display as block to allow margins */
+    margin-bottom: 10px; /* 10 pixel margin below */
+}
+
+.paragraph /* paragraphs */
+{
+    display: grid;
+}
+
+@font-face {
+    font-family: "MathFont";
+    src: url(STIXTwoMath-Regular.otf) format("opentype");
+}
+
+math
+{
+    font-family: "MathFont";
+}
+
+.math-box /* math boxes */
+{
+    display: grid;
+}
+
+.math-box math /* math statements inside math boxes */
+{
+    margin-top: 2.5px; /* 5 pixels of space above */
+    margin-bottom: 2.5px; /* 5 pixels of space below */
+}
+
+.math-box math:last-child /* the last math statement inside math boxes */
+{
+    margin-bottom: 0px; /* 0 pixels of space below last math boxes */
+}
+
+.math-exp-red
+{
+    color:rgb(255, 0, 0)
+}
+
+.math-exp-blue
+{
+    color:rgb(0, 0, 255)
+}
+
+.image-box /* image boxes */
+{
+    display: block; /* display as block */
+    border: 1px solid rgb(100, 150, 215); /* 1 pixel border */
+    padding: 2px; /* 2 pixels of padding */
+}
+
+.image-box img /* images inside of image boxes */
+{
+    width: 100%; /* the image fills 100% of the image box width */
+    height: 100%; /* the image fills 100% of the image box height */
+}

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="../../style.css">
+    <body>
+        <ul class="nav-bar"> <!-- the navigation bar -->
+            <li class="nav-entry"><img class="logo" src="../../logo_512x512.bmp" alt="logo"></li>
+            <li class="nav-entry"><a href="../../main.html">Home</a></li>
+            <li class="nav-entry"><a href="../tutorials.html">Tutorials</a></li>
+        </ul>
+        <div class="main">
+            <div class="content">
+                <div class="main-section"> <!-- Introduction section -->
+                    <div class="section_header">
+                        <b>Introduction:</b>
+                    </div>
+                    <div> <!-- Subsection -->
+                        <div class="sub-section">
+                            <div class="paragraph">
+                                <span>
+                                    This tutorial goes over the the different transformation matrices used in 3D graphics. Most of the time we use 4x4 matrices for 3D graphics because some transformation matrices require 4 columns, 
+                                    and to compose all the transformations into a single matrix using matrix multiplication, 4x4 matrices are required. Composing transformation matrices into a single matrix and then applying that matrix to all vertices
+                                    is much more efficient than repeatedly multiplying matrices unnecessarily.
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- Subsection -->
+                </div> <!-- Introduction section -->
+                <br>
+                <div class="main-section"> <!-- Transformation Matrices section -->
+                    <div class="section_header">
+                        <b>Transformation Matrices:</b>
+                    </div>
+                    <div> <!-- Translation matrix subsection -->
+                        <u class="sub-section-header">Translation matrix:</u>
+                        <div class="sub-section">
+                            <div class="paragraph">
+                                <span>
+                                    Translation matrices are used to move vectors around. A translation matrix has the form:
+                                    <div class="math-box">
+                                        <math display="block">
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd>1</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>T</mi><mi>x</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>T</mi><mi>y</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                            <mtd><msub><mi>T</mi><mi>z</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                    </div>
+                                </span>
+                            </div>
+                            <br>
+                            <div class="paragraph">
+                                <span>
+                                    When applied to a vector, this has the following effect:
+                                    <div class="math-box">
+                                        <math display="block">
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd>1</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>T</mi><mi>x</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>T</mi><mi>y</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                            <mtd><msub><mi>T</mi><mi>z</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>x</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>y</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>z</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mn>1</mn></msub></mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                        <math display="block">
+                                            <mo>=</mo>
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>x</mi></msub></mtd>
+                                                            <mo>+</mo>
+                                                            <mtd><msub><mi>T</mi><mi>x</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>y</mi></msub></mtd>
+                                                            <mo>+</mo>
+                                                            <mtd><msub><mi>T</mi><mi>y</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>z</mi></msub></mtd>
+                                                            <mo>+</mo>
+                                                            <mtd><msub><mi>T</mi><mi>z</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mn>1</mn></msub></mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- Translation matrix subsection -->
+                    <br>
+                    <div> <!-- Scaling matrix subsection -->
+                        <u class="sub-section-header">Scaling matrix:</u>
+                        <div class="sub-section">
+                            <div class="paragraph">
+                                <span>
+                                    Scaling matrices are used to change the sizes of vectors. A scaling matrix has the form:
+                                    <div class="math-box">
+                                        <math display="block">
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><msub><mi>S</mi><mi>x</mi></msub></mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>S</mi><mi>y</mi></msub></mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>S</mi><mi>z</mi></msub></mtd>
+                                                            <mtd>0</mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                    </div>
+                                </span>
+                            </div>
+                            <br>
+                            <div class="paragraph">
+                                <span>
+                                    When applied to a vector, this has the following effect:
+                                    <div class="math-box">
+                                        <math display="block">
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><msub><mi>S</mi><mi>x</mi></msub></mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>S</mi><mi>y</mi></msub></mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd><msub><mi>S</mi><mi>z</mi></msub></mtd>
+                                                            <mtd>0</mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>0</mtd>
+                                                            <mtd>1</mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>x</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>y</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>V</mi><mi>z</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mn>1</mn></msub></mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                        <math display="block">
+                                            <mo>=</mo>
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><msub><mi>S</mi><mi>x</mi></msub><msub><mi>V</mi><mi>x</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>S</mi><mi>y</mi></msub><msub><mi>V</mi><mi>y</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mi>S</mi><mi>z</mi></msub><msub><mi>V</mi><mi>z</mi></msub></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><msub><mn>1</mn></msub></mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- Scaling matrix subsection -->
+                    <div> <!-- Rotation matrix subsection -->
+                        <u class="sub-section-header">Rotation matrix:</u>
+                        <div class="sub-section">
+                            <div class="paragraph">
+                                <span>
+                                    Rotation matrices are used to rotate vectors. In two dimensions, the following matrix can be used to rotate objects:
+                                    <div class="math-box">
+                                        <math display="block">
+                                            <mrow>
+                                                <mo>[</mo>
+                                                    <mtable>
+                                                        <mtr>
+                                                            <mtd><mrow><mi>cos</mi><mo>(</mo><mi>&theta;</mi><mo>)</mo></mrow></mtd>
+                                                            <mtd><mrow><mo>&minus;</mo><mi>sin</mi><mo>(</mo><mi>&theta;</mi><mo>)</mo></mrow></mtd>
+                                                        </mtr>
+                                                        <mtr>
+                                                            <mtd><mrow><mi>sin</mi><mo>(</mo><mi>&theta;</mi><mo>)</mo></mrow></mtd>
+                                                            <mtd><mrow><mi>cos</mi><mo>(</mo><mi>&theta;</mi><mo>)</mo></mrow></mtd>
+                                                        </mtr>
+                                                    </mtable>
+                                                <mo>]</mo>
+                                            </mrow>
+                                        </math>
+                                    </div>
+                                </span>
+                            </div>
+                            <br>
+                            <div class="paragraph">
+                                <span>
+                                    In 3D, rotation matrices can be created using Euler angles, which rotate on the seperate <math><mi>x</mi></math>, <math><mi>y</mi></math>,
+                                    and <math><mi>z</mi></math>. The problem with Euler angles is that it can create unexpected rotations (gimbal lock) if the programmer is not careful.
+                                    Quaternions are a more efficient way to create rotations and generate rotation matrices, and are explained more HERE.
+                                </span>
+                            </div>
+                        </div>
+                    </div> <!-- Rotation matrix subsection -->
+                </div> <!-- Transformation Matrices section -->
+                <br>
+                <div class="main-section"> <!-- Sources -->
+                    <div class="section_header">
+                        <b>Sources:</b>
+                    </div>
+                    <div> <!-- Subsection -->
+                        <div class="sub-section">
+                            <ul style="list-style-type: square;">
+                                <li>Wikipedia - Rotation matrix: <a href="https://en.wikipedia.org/wiki/Rotation_matrix">https://en.wikipedia.org/wiki/Rotation_matrix</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div> <!-- Sources -->
+            </div> <!-- content -->
+        </div> <!-- main -->
+    </body>
+</html>
