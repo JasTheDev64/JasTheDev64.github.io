@@ -1,184 +1,204 @@
 
-/* html */ /* the webpage */
-/* { */
-/* } */
-
-body /* the webpage body */
+html
 {
-    margin: 0px 0px 0px 0px; /* padding - top | right | bottom | left */
-    padding: 0px 0px 0px 0px; /* padding - top | right | bottom | left */
+    margin: 0;
+    padding: 0;
     font-family: "arial"; /* the font of the webpage */
     font-size: 14px; /* the font size of the webpage */
 }
 
-.nav-bar /* navigation bar */
+body
 {
-    list-style-type: none; /* no list markers */
-    margin: 0; /* no space around border */
-    padding: 2px 0px 2px 0px; /* no padding around elements */
-    overflow: hidden; /* any overflow is hidden */
-    border: solid; /* solid border */
+    margin: 0;
+    padding: 0;
+    background-color: rgb(250, 250, 250);
+}
+
+.nav-bar
+{
+    display: block;
+    overflow: hidden; /* make navigation bar take up entire width */
+    margin: 0rem 0rem 1rem 0rem; /* top | right | bottom | left */
+    padding: 0;
+    height: 3rem; /* size 3 units */
+    background-color: rgb(255, 255, 255);
+    border: solid; /* solid style */
+    border-width: 0px 0px 1px 0px; /* top | right | bottom | left */
+    border-color: rgb(200, 200, 200); /* color */
+}
+
+.nav-entry
+{
+    display: block;
+    float: left; /* entries go from left to right */
+    padding: 0rem 0.5rem 0rem 0.5rem; /* top | right | bottom | left */
+    text-decoration: none; /* No underlining of the hyperlink */
+    color: rgb(0, 0, 0); /* black text */
+    text-align: center;
+    height: 3rem; /* size 3 units */
+    line-height: 3rem; /* must be the same as height and .nav-bar height */
+}
+
+.nav-logo
+{
+    display: block;
+    float: left; /* entries go from left to right */
+    padding: 0rem 0.5rem 0rem 0.5rem; /* top | right | bottom | left */
+    height: 3rem; /* size 3 units */
+    margin-top: 0.25rem; /* must be .nav-bar height - .nav-logo img width / 2.0 */
+}
+
+.nav-logo img
+{
+    width: 2.5rem; /* image size 2.5 units */
+}
+
+.main
+{
+    display: block;
+    width: 80%;
+    margin: auto; /* center the container */
+}
+
+.card
+{
+    display: flex;
+    height: 10rem;
+    background-color: rgb(255, 255, 255);
+    border: solid; /* solid style */
+    border-width: 1px;
+    border-color: rgb(200, 200, 200); /* color */
+    margin: 0rem 0rem 0.5rem 0rem; /* top | right | bottom | left */
+}
+
+.card-link
+{
+    text-decoration: none;
+    color: inherit;
+}
+
+.card-picture
+{
+    margin: auto 0.5rem auto 0.5rem; /* top | right | bottom | left */
+}
+
+.card-picture img
+{
+    height: 9rem;
+    width: 9rem;
+}
+
+.card-content
+{
+    margin: 0.5rem 0rem 0.5rem 0rem; /* top | right | bottom | left */
+}
+
+.page
+{
+    display: block;
+    background-color: rgb(255, 255, 255);
+    border: solid; /* solid style */
+    border-width: 1px;
+    border-color: rgb(200, 200, 200); /* color */
+}
+
+.page-title
+{
+    font-size: 20px; /* larger font */
+    border: solid; /* solid style */
     border-width: 0px 0px 1px 0px; /* 1 pixel border at bottom */
-    border-color: rgb(100, 150, 215); /* border color */
-    background-color: rgb(250, 250, 255); /* background color */
-    width: 100%; /* full width */
-    height: 36px; /* 36 pixel height */
+    border-color: rgb(0, 0, 0); /* border color */
+    margin: 1.5rem 1.5rem 0.5rem 1.5rem; /* top | right | bottom | left */
 }
 
-.logo /* the logo */
+.page-content
 {
-    max-width: 36px; /* max logo width is 36 pixels */
-    max-height: 36px; /* max logo height is 36 pixels */
-    padding-left: 5px; /* padding on the left side */
+    margin: 0.0rem 1.5rem 1.5rem 1.5rem; /* top | right | bottom | left */
 }
 
-.nav-entry /* navigation entries */
+.page-content > * /* all direct children of page-content */
 {
-    float: left; /* entries float towards left of the nav bar container */
+    margin: 0;
 }
 
-.nav-entry a /* navigation entry text */
+.page-section
 {
-    display: block; /* display the link as a block - allows specifying the width, height, padding, margins, etc. */
-    color: rgb(0, 0, 0); /* color of the link text */
-    text-align: center; /* align text to the center */
-    padding: 0px 16px 0px 16px; /* padding - top | right | bottom | left */
-    text-decoration: none; /* text decoration */
-    height: 36px; /* height is 36 pixels */
-    line-height: 36px; /* same as height to offset to middle */
-    margin: 0px 2px 0px 2px; /* margin around entries */
-}
-
-.nav-entry a:hover /* navigation entry text (on hover) */
-{
-    color: rgb(255, 255, 255); /* color of the link text */
-    background-color: rgb(100, 150, 215); /* background color of this element */
-}
-
-.nav-entry a:active /* navigation entry text (when active) */
-{
-    border: solid; /* solid style */
-    border-width: 0px 0px 2px 0px; /* 2 pixel border at bottom */
-    border-color: rgb(100, 150, 215); /* color */
-}
-
-.main /* the main container */
-{
-    margin: 0; /* no margins */
-    padding: 5px 0px 0px 0px; /* 5 pixels of padding between navigation bar and content */
-    width: 100%; /* the main container takes up the entire width of the body */
-    height: 100%; /* the main container takes up the entire height of the body */
-    min-height: 100%; /* force to take up entire height */
-}
-
-.post /* post continer */
-{
-    display: inline-block; /* display as inline block */
-    width: 100%; /* take up 100% of the parent container width */
-    margin-left: auto; /* center this container inside the parent container */
-    margin-right: auto; /* center this container inside the parent container */
-    margin-bottom: 10px; /* padding of 10 pixels between the posts */
-    border: 1px solid rgb(100, 150, 215); /* 1 pixel border */
-    padding: 5px; /* 5px padding between container frame and the text */
-}
-
-.content /* the content container */
-{
-    width: 80%; /* the content container needs to fill up 80% of the page */
-    height: 100%; /* the content container fills up the entire height of the page */
-    padding: 1%; /* padding between container frame and the text */
-    min-height: 100%; /* force to take up entire height */
-    border: 1px solid rgb(100, 150, 215); /* 1 pixel border */
-    margin-left: auto; /* center this container inside the main container */
-    margin-right: auto; /* center this container inside the main container */
-}
-
-.section_header /* section headers */
-{
-    width: 100%; /* 100% width */
-    font-size: 18px; /* larger font */
+    font-size: 16px; /* larger font */
     border: solid; /* solid style */
     border-width: 0px 0px 1px 0px; /* 1 pixel border at bottom */
-    border-color: rgb(100, 150, 215); /* border color */
-    margin-bottom: 10px; /* 10 pixel margin below */
+    border-color: rgb(0, 0, 0); /* border color */
+    margin-bottom: 0.5rem;
 }
 
-.animation-caption /* animation captions */
+.page-subsection
 {
-    display: block; /* display the link as a block - allows specifying the width, height, padding, margins, etc. */
-    padding: 5px; /* 5 pixel padding on sides */
+    font-size: 16px;
+    margin-bottom: 0.5rem;
+}
+
+.code-box
+{
+    display: block;
     border: solid; /* solid style */
-    border-width: 1px 0px 0px 0px; /* 1 pixel border at top */
-    border-color: rgb(100, 150, 215); /* border color */
+    border-width: 1px;
+    border-color: rgb(200, 200, 200);
+    overflow: auto;
 }
 
-.main-section /* main sections */
+.code-box pre
 {
     display: grid;
+    margin: 0.5rem 0.0rem 0.5rem 0.0rem; /* top | right | bottom | left */
+    grid-template-columns: 2.5em auto;
 }
 
-.sub-section /* subsections */
+.code-box pre span
 {
-    display: block; /* display as block */
-    width: 100%; /* use full width */
+    grid-column: 1;
+    padding-left: 0.5em;
 }
 
-.sub-section-header /* subsection headers */
+.code-box pre code
 {
-    display: block; /* display as block to allow margins */
-    margin-bottom: 10px; /* 10 pixel margin below */
+    grid-column: 2;
 }
 
-.paragraph /* paragraphs */
+.code-box pre code div
 {
-    display: grid;
+    display: inline-block;
 }
 
-@font-face {
-    font-family: "MathFont";
-    src: url(STIXTwoMath-Regular.otf) format("opentype");
-}
-
-math
+.enum
 {
-    font-family: "MathFont";
+    color: rgb(189, 99, 197);
 }
 
-.math-box /* math boxes */
+.keyword
 {
-    display: grid;
+    color: rgb(0, 0, 255);
 }
 
-.math-box math /* math statements inside math boxes */
+.datatype
 {
-    margin-top: 2.5px; /* 5 pixels of space above */
-    margin-bottom: 2.5px; /* 5 pixels of space below */
+    color: rgb(43, 145, 175);
 }
 
-.math-box math:last-child /* the last math statement inside math boxes */
+.string
 {
-    margin-bottom: 0px; /* 0 pixels of space below last math boxes */
+    color: rgb(9, 134, 88);
 }
 
-.math-exp-red
+.number
 {
-    color:rgb(255, 0, 0)
+    color: rgb(163, 21, 21);
 }
 
-.math-exp-blue
+.preprocessor
 {
-    color:rgb(0, 0, 255)
+    color: rgb(163, 21, 21);
 }
 
-.image-box /* image boxes */
+.comment
 {
-    display: block; /* display as block */
-    border: 1px solid rgb(100, 150, 215); /* 1 pixel border */
-    padding: 2px; /* 2 pixels of padding */
-}
-
-.image-box img /* images inside of image boxes */
-{
-    width: 100%; /* the image fills 100% of the image box width */
-    height: 100%; /* the image fills 100% of the image box height */
+    color: rgb(9, 134, 88);
 }

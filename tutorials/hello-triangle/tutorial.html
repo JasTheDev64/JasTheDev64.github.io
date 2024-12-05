@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="../../style.css">
+    <body>
+        <div class="nav-bar"> <!-- the navigation bar -->
+            <a class="nav-logo"><img src="../../logo_512x512.png" alt="logo"></a>
+            <a class="nav-entry" href="../../index.html">Home</a>
+        </div>
+        <div class="main"> <!-- Main -->
+            <div class="page">
+                <div class="page-title">
+                    <b>Hello Triangle:</b>
+                </div>
+                <div class="page-content">
+                    <p>
+                        Vulkan can be a very daunting graphics API to get started with. It is very verbose and explicit, requiring the programmer to set up
+                        many objects before they can even begin rendering to the screen. This set up can be broken down into simpler steps, making it
+                        easier to understand and get started.
+                    </p>
+                    <br>
+                    <p>
+                        A bare bones Vulkan set up can be simplified down into the steps:
+                        <ol>
+                            <li>Create the window</li>
+                            <li>Create a Vulkan instance</li>
+                            <li>Enumerate the available GPUs</li>
+                            <li>Create a Vulkan device</li>
+                            <li>Create a graphics queue</li>
+                            <li>Initialize memory heaps/buffers</li>
+                            <li>Create the swapchain</li>
+                            <li>Create the render pass</li>
+                            <li>Create the framebuffers</li>
+                        </ol>
+                    </p>
+                    <br>
+                    <p>
+                        Once that is set up, we can implement the actual rendering logic for Hello Triangle as follows:
+                        <ol start="10">
+                            <li>Create/upload the triangle vertex buffer</li>
+                            <li>Create the vertex/fragment shaders</li>
+                            <li>Create the graphics pipeline</li>
+                            <li>Implement the main loop and render function</li>
+                        </ol>
+                    </p>
+                    <br>
+                    <p>
+                        The complete source code for this tutorial can be found in this <a href="https://github.com/JasTheDev64/Hello-Triangle">github repository</a>.
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>1 - Creating the window:</b>
+                    </div>
+                    <p>
+                        We will use the SDL library to create the window. SDL is a very popular and well supported library, and
+                        makes it very easy to create windows.
+                    </p>
+                    <br>
+                    <p>
+                        We start by initializing SDL and loading the Vulkan library, then we can create the SDL window.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="datatype">SDL_Window</div><div>* Window { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span>2.</span><code></code>
+                                <span>3.</span><code><div>...</div></code>
+                                <span>4.</span><code></code>
+                                <span>5.</span><code><div>Assert(SDL_Init(</div><div class="enum">SDL_INIT_EVERYTHING</div><div>) == </div><div class="number">0</div><div>, </div><div class="string">"Could not initialize SDL"</div><div>);</div></code>
+                                <span>6.</span><code><div>Assert(SDL_Vulkan_LoadLibrary(</div><div class="keyword">nullptr</div><div>) == </div><div class="number">0</div><div>, </div><div class="string">"Could not load the vulkan library"</div><div>);</div></code>
+                                <span>7.</span><code></code>
+                                <span>8.</span><code><div>Window = SDL_CreateWindow(</div><div class="enum">APP_NAME</div><div>, </div><div class="enum">SDL_WINDOWPOS_CENTERED</div><div>, </div><div class="enum">SDL_WINDOWPOS_CENTERED</div><div>, </div><div class="enum">WIDTH</div><div>, </div><div class="enum">HEIGHT</div><div>, </div><div class="enum">SDL_WINDOW_VULKAN</div><div> | </div><div class="enum">SDL_WINDOW_SHOWN</div><div>);</div></code>
+                                <span>9.</span><code><div>Assert(Window != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Could not create SDL window"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After the window is created, we need to poll and handle SDL's events. The main one being <code>SDL_QUIT</code>, which tells the application
+                        the user has pressed the close button. Here we also exit if the user presses the escape key.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">bool</div><div> Running { </div><div class="keyword">true</div><div> };</div></code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code><div>...</div></code>
+                                <span> 4.</span><code></code>
+                                <span> 5.</span><code><div class="keyword">void</div><div> Update(</div><div class="keyword">void</div><div>)</div></code>
+                                <span> 6.</span><code><div>{</div></code>
+                                <span> 7.</span><code><div>    </div><div class="datatype">SDL_Event</div><div> event = { </div><div class="number">0</div><div> };</div></code>
+                                <span> 8.</span><code><div>    </div><div class="keyword">while</div><div> (SDL_PollEvent(&amp;event) != </div><div class="number">0</div><div>)</div></code>
+                                <span> 9.</span><code><div>    {</div></code>
+                                <span>10.</span><code><div>        </div><div class="keyword">switch</div><div> (event.type)</div></code>
+                                <span>11.</span><code><div>        {</div></code>
+                                <span>12.</span><code><div>            </div><div class="keyword">case</div><div> </div><div class="enum">SDL_QUIT</div><div>:</div></code>
+                                <span>13.</span><code><div>            {</div></code>
+                                <span>14.</span><code><div>                Running = </div><div class="keyword">false</div><div>; </div><div class="comment">// The main loop will exit once this becomes false</div></code>
+                                <span>15.</span><code><div>                </div><div class="keyword">break</div><div>;</div></code>
+                                <span>16.</span><code><div>            }</div></code>
+                                <span>17.</span><code><div>            </div><div class="keyword">case</div><div> </div><div class="enum">SDL_KEYDOWN</div><div>:</div></code>
+                                <span>18.</span><code><div>            {</div></code>
+                                <span>19.</span><code><div>                </div><div class="keyword">switch</div><div> (event.key.keysym.scancode)</div></code>
+                                <span>20.</span><code><div>                {</div></code>
+                                <span>21.</span><code><div>                    </div><div class="keyword">case</div><div> </div><div class="enum">SDL_SCANCODE_ESCAPE</div><div>:</div></code>
+                                <span>22.</span><code><div>                        Running = </div><div class="keyword">false</div><div>; </div><div class="comment">// The main loop will exit once this becomes false</div></code>
+                                <span>23.</span><code><div>                        </div><div class="keyword">break</div><div>;</div></code>
+                                <span>24.</span><code><div>                    </div><div class="keyword">default</div><div>:</div></code>
+                                <span>25.</span><code><div>                        </div><div class="keyword">break</div><div>;</div></code>
+                                <span>26.</span><code><div>                }</div></code>
+                                <span>27.</span><code><div>                </div><div class="keyword">break</div><div>;</div></code>
+                                <span>28.</span><code><div>            }</div></code>
+                                <span>29.</span><code><div>            </div><div class="keyword">default</div><div>:</div></code>
+                                <span>30.</span><code><div>                </div><div class="keyword">break</div><div>;</div></code>
+                                <span>31.</span><code><div>        }</div></code>
+                                <span>32.</span><code><div>    }</div></code>
+                                <span>33.</span><code><div>}</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>2 - Creating the Vulkan instance:</b>
+                    </div>
+                    <div class="page-subsection">
+                        <b>2.A - Enumerating instance extensions and layers (optional):</b>
+                    </div>
+                    <p>
+                        Before creating the Vulkan instance, the application can enumerate all the available layers/extensions available from the API/driver.
+                        These layers/extensions can give optional functionality/features if the application requests it during instance creation.
+                        We can enumerate the layers and extensions using the <code>vkEnumerateDeviceLayerProperties</code> and <code>vkEnumerateDeviceExtensionProperties</code> functions.
+                    </p>
+                    <br>
+                    <p>
+                        Normally an application will validate if its required layers/extensions are available, but here we simply print them out.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">uint32_t</div><div> ExtCount = </div><div class="number">0</div><div>;</div></code>
+                                <span> 2.</span><code><div class="datatype">uint32_t</div><div> LayerCount = </div><div class="number">0</div><div>;</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div>Assert(vkEnumerateInstanceLayerProperties(&amp;LayerCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get number of instance layers"</div><div>);</div></code>
+                                <span> 5.</span><code></code>
+                                <span> 6.</span><code><div>std::vector&lt;VkLayerProperties&gt; AvailableLayers(LayerCount);</div></code>
+                                <span> 7.</span><code><div>Assert(vkEnumerateInstanceLayerProperties(&amp;LayerCount, AvailableLayers.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get instance layers"</div><div>);</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div class="keyword">for</div><div> (</div><div class="datatype">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt;= AvailableLayers.size(); i++)</div></code>
+                                <span>10.</span><code><div>{</div></code>
+                                <span>11.</span><code><div>    </div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>* pLayerName = (i == </div><div class="number">0</div><div>) ? </div><div class="keyword">nullptr</div><div> : AvailableLayers[i &minus; </div><div class="number">1</div><div>].layerName;</div></code>
+                                <span>12.</span><code></code>
+                                <span>13.</span><code><div>    Assert(vkEnumerateInstanceExtensionProperties(pLayerName, &amp;ExtCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get extension count for instance layer"</div><div>);</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div>    std::vector&lt;VkExtensionProperties&gt; AvailableExtensions(ExtCount);</div></code>
+                                <span>16.</span><code><div>    Assert(vkEnumerateInstanceExtensionProperties(pLayerName, &amp;ExtCount, AvailableExtensions.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get extensions for instance layer"</div><div>);</div></code>
+                                <span>17.</span><code></code>
+                                <span>18.</span><code><div>    printf(</div><div class="string">"Instance layer: %s\n"</div><div>, (pLayerName == </div><div class="keyword">nullptr</div><div>) ? </div><div class="string">"Global"</div><div> : pLayerName);</div></code>
+                                <span>19.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="datatype">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; AvailableExtensions.size(); j++)</div></code>
+                                <span>20.</span><code><div>    {</div></code>
+                                <span>21.</span><code><div>        printf(</div><div class="string">"\t%s\n"</div><div>, AvailableExtensions[j].extensionName);</div></code>
+                                <span>22.</span><code><div>    }</div></code>
+                                <span>23.</span><code><div>}</div></code>
+                                <span>24.</span><code></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-subsection">
+                        <b>2.B - Required SDL extensions:</b>
+                    </div>
+                    <p>
+                        SDL requires certain extensions to be enabled when the Vulkan instance is created. We can get these using <code>SDL_Vulkan_GetInstanceExtensions</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div>Assert(SDL_Vulkan_GetInstanceExtensions(Window, &amp;ExtCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">SDL_TRUE</div><div>, </div><div class="string">"Could not get number of required SDL extensions"</div><div>);</div></code>
+                                <span>2.</span><code></code>
+                                <span>3.</span><code><div>std::vector&lt;</div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>*&gt; RequiredLayers;</div></code>
+                                <span>4.</span><code><div>std::vector&lt;</div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>*&gt; RequiredExtensions(ExtCount);</div></code>
+                                <span>5.</span><code><div>Assert(SDL_Vulkan_GetInstanceExtensions(Window, &amp;ExtCount, RequiredExtensions.data()) == </div><div class="enum">SDL_TRUE</div><div>, </div><div class="string">"Could not get required SDL extensions"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        If you want to be thorough, you can validate these required extensions are supported by following the code in section A.
+                    </p>
+                    <br>
+                    <div class="page-subsection">
+                        <b>2.C - Enable the validation and debug report layer/extension (optional):</b>
+                    </div>
+                    <p>
+                        The validation layer can help catch bad parameters, memory leaks, invalid API calls, and many other errors. It is very
+                        useful for catching bugs. To enable it, simply add it to the required layer/extension list.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="preprocessor">#ifdef DEBUG </div><div class="comment">// Only add the validation layer/extension if this is a debug build</div></code>
+                                <span>2.</span><code><div>    RequiredLayers.push_back(</div><div class="string">"VK_LAYER_KHRONOS_validation"</div><div>);</div></code>
+                                <span>3.</span><code><div>    RequiredExtensions.push_back(</div><div class="enum">VK_EXT_DEBUG_REPORT_EXTENSION_NAME</div><div>);</div></code>
+                                <span>4.</span><code><div class="preprocessor">#endif</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Note that enabling this validation extension is not enough, we need to do some additional set up after creating the instance. This will be covered
+                        in section 2.E.
+                    </p>
+                    <br>
+                    <div class="page-subsection">
+                        <b>2.D - Creating the instance:</b>
+                    </div>
+                    <p>
+                        To create the actual instance, we fill out the <code>VkApplicationInfo</code> and <code>VkInstanceCreateInfo</code> structures,
+                        and call <code>vkCreateInstance</code>. The application structure specifies the app and engine names/versions and the required Vulkan API version.
+                        The instance structure will take a pointer to the application structure and the lists of the required layers/extensions.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkApplicationInfo</div><div> AppInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_APPLICATION_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .pApplicationName = </div><div class="enum">APP_NAME</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .applicationVersion = </div><div class="number">1</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .pEngineName = </div><div class="enum">APP_NAME</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .engineVersion = </div><div class="number">1</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .apiVersion = VK_API_VERSION_1_0</div></code>
+                                <span>10.</span><code><div>};</div></code>
+                                <span>11.</span><code></code>
+                                <span>12.</span><code><div class="datatype">VkInstanceCreateInfo</div><div> InstanceInfo =</div></code>
+                                <span>13.</span><code><div>{</div></code>
+                                <span>14.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO</div><div>,</div></code>
+                                <span>15.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>16.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>17.</span><code><div>    .pApplicationInfo = &amp;AppInfo,</div></code>
+                                <span>18.</span><code><div>    .enabledLayerCount = </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">uint32_t</div><div>&gt;(RequiredLayers.size()),</div></code>
+                                <span>19.</span><code><div>    .ppEnabledLayerNames = RequiredLayers.data(),</div></code>
+                                <span>20.</span><code><div>    .enabledExtensionCount = </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">uint32_t</div><div>&gt;(RequiredExtensions.size()),</div></code>
+                                <span>21.</span><code><div>    .ppEnabledExtensionNames = RequiredExtensions.data()</div></code>
+                                <span>22.</span><code><div>};</div></code>
+                                <span>23.</span><code></code>
+                                <span>24.</span><code><div>Assert(vkCreateInstance(&amp;InstanceInfo, </div><div class="keyword">nullptr</div><div>, &amp;Instance) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create vulkan instance"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-subsection">
+                        <b>2.E - Creating the debug report callback (optional):</b>
+                    </div>
+                    <p>
+                        If you followed 2.C, once the instance is created, we need to set up the debug report callback which Vulkan
+                        will use to send the debug messages. We first need to use
+                        <code>vkGetInstanceProcAddr</code> to get the function pointers to the callbacks <code>vkCreateDebugReportCallback</code> and
+                        <code>vkDestroyDebugReportCallback</code>. After getting the function addresses, we can create the debug report callback
+                        object <code>VkDebugReportCallbackEXT</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="preprocessor">#ifdef DEBUG</div></code>
+                                <span> 2.</span><code><div>    </div><div class="datatype">VkDebugReportCallbackEXT</div><div>            hVkDebugReport { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 3.</span><code><div>    </div><div class="datatype">PFN_vkCreateDebugReportCallbackEXT</div><div>  vkCreateDebugReportCb { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 4.</span><code><div>    </div><div class="datatype">PFN_vkDestroyDebugReportCallbackEXT</div><div> vkDestroyDebugReportCb { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 5.</span><code><div class="preprocessor">#endif</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div>...</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div class="preprocessor">#ifdef DEBUG</div></code>
+                                <span>10.</span><code><div>    </div><div class="keyword">static</div><div> </div><div class="datatype">VkBool32</div><div> VulkanDebugReportCb(</div><div class="datatype">VkDebugReportFlagsEXT</div><div> flags, </div><div class="datatype">VkDebugReportObjectTypeEXT</div><div> objectType, </div><div class="keyword">uint64_t</div><div> object, </div><div class="keyword">size_t</div><div> location, </div><div class="keyword">int32_t</div><div> messageCode, </div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>* pLayerPrefix, </div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>* pMessage, </div><div class="keyword">void</div><div>* pUserData)</div></code>
+                                <span>11.</span><code><div>    {</div></code>
+                                <span>12.</span><code><div>        printf(</div><div class="string">"%s: %s\n"</div><div>, pLayerPrefix, pMessage);</div></code>
+                                <span>13.</span><code><div>        return </div><div class="enum">VK_TRUE</div><div>;</div></code>
+                                <span>14.</span><code><div>    }</div></code>
+                                <span>15.</span><code><div class="preprocessor">#endif</div></code>
+                                <span>16.</span><code></code>
+                                <span>17.</span><code><div>...</div></code>
+                                <span>18.</span><code></code>
+                                <span>19.</span><code><div class="preprocessor">#ifdef DEBUG</div></code>
+                                <span>20.</span><code><div>    vkCreateDebugReportCb = </div><div class="keyword">reinterpret_cast</div><div>&lt;PFN_vkCreateDebugReportCallbackEXT&gt;(vkGetInstanceProcAddr(Instance, </div><div class="string">"vkCreateDebugReportCallbackEXT"</div><div>));</div></code>
+                                <span>21.</span><code><div>    vkDestroyDebugReportCb = </div><div class="keyword">reinterpret_cast</div><div>&lt;PFN_vkDestroyDebugReportCallbackEXT&gt;(vkGetInstanceProcAddr(Instance, </div><div class="string">"vkDestroyDebugReportCallbackEXT"</div><div>));</div></code>
+                                <span>22.</span><code></code>
+                                <span>23.</span><code><div>    Assert(vkCreateDebugReportCb != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Could not get debug report callback"</div><div>);</div></code>
+                                <span>24.</span><code><div>    Assert(vkDestroyDebugReportCb != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Could not get debug report callback"</div><div>);</div></code>
+                                <span>25.</span><code></code>
+                                <span>26.</span><code><div>    </div><div class="datatype">VkDebugReportCallbackCreateInfoEXT</div><div> CallbackInfo =</div></code>
+                                <span>27.</span><code><div>    {</div></code>
+                                <span>28.</span><code><div>        .sType = </div><div class="enum">VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT</div><div>,</div></code>
+                                <span>29.</span><code><div>        .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>30.</span><code><div>        .flags = </div><div class="enum">VK_DEBUG_REPORT_INFORMATION_BIT_EXT</div><div> | </div><div class="enum">VK_DEBUG_REPORT_WARNING_BIT_EXT</div><div> | </div><div class="enum">VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT</div><div> |</div></code>
+                                <span>31.</span><code><div>                    </div><div class="enum">VK_DEBUG_REPORT_ERROR_BIT_EXT</div><div> | </div><div class="enum">VK_DEBUG_REPORT_DEBUG_BIT_EXT</div><div>,</div></code>
+                                <span>32.</span><code><div>        .pfnCallback = VulkanDebugReportCb,</div></code>
+                                <span>33.</span><code><div>        .pUserData = </div><div class="keyword">nullptr</div></code>
+                                <span>34.</span><code><div>    };</div></code>
+                                <span>35.</span><code></code>
+                                <span>36.</span><code><div>    Assert(vkCreateDebugReportCb(Instance, &amp;CallbackInfo, </div><div class="keyword">nullptr</div><div>, &amp;hVkDebugReport) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to register debug callback\n"</div><div>);</div></code>
+                                <span>37.</span><code><div class="preprocessor">#endif</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>3 - Enumerating available GPUs:</b>
+                    </div>
+                    <p>
+                        Vulkan gives a list of all the GPUs in the current system through the <code>vkEnumeratePhysicalDevices</code> function.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="keyword">uint32_t</div><div> DeviceCount = </div><div class="number">0</div><div>;</div></code>
+                                <span>2.</span><code><div>Assert(vkEnumeratePhysicalDevices(Instance, &amp;DeviceCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get number of physical devices"</div><div>);</div></code>
+                                <span>3.</span><code></code>
+                                <span>4.</span><code><div>std::vector&lt;VkPhysicalDevice&gt; DeviceHandles(DeviceCount);</div></code>
+                                <span>5.</span><code><div>Assert(vkEnumeratePhysicalDevices(Instance, &amp;DeviceCount, DeviceHandles.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get physical devices"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Once we have all the device handles, we can get the properties of each device. This includes:
+                        <ul>
+                            <li>The GPU name</li>
+                            <li>The GPU type (integrated, discrete, etc.)</li>
+                            <li>The types and counts of queues available on the GPU (graphics, compute, copy, etc.)</li>
+                            <li>The type and amounts of memory available in the GPU</li>
+                        </ul>
+                    </p>
+                    <br>
+                    <p>
+                        We will be using a simple algorithm which sorts the GPUs by their type (integrated vs discrete), the number of graphics queues available,
+                        and the amount of local memory available. After sorting the GPUs, the one with the highest preference will be selected.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">const</div><div> std::map&lt;VkPhysicalDeviceType, </div><div class="keyword">uint32_t</div><div>&gt; PreferenceOrder =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    { </div><div class="enum">VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU</div><div>,   </div><div class="number">2</div><div> },</div></code>
+                                <span> 4.</span><code><div>    { </div><div class="enum">VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU</div><div>, </div><div class="number">1</div><div> }</div></code>
+                                <span> 5.</span><code><div>};</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div class="keyword">struct</div><div> PhysicalDeviceInfo</div></code>
+                                <span> 8.</span><code><div>{</div></code>
+                                <span> 9.</span><code><div>    </div><div class="datatype">VkPhysicalDevice</div><div> Handle;</div></code>
+                                <span>10.</span><code><div>    </div><div class="keyword">uint32_t</div><div>         OriginalIndex;</div></code>
+                                <span>11.</span><code><div>    </div><div class="keyword">uint32_t</div><div>         PreferenceIndex;</div></code>
+                                <span>12.</span><code><div>    </div><div class="keyword">uint32_t</div><div>         GraphicsQueueGroup;</div></code>
+                                <span>13.</span><code><div>    </div><div class="keyword">uint32_t</div><div>         NumGraphicsQueues;</div></code>
+                                <span>14.</span><code><div>    </div><div class="keyword">uint64_t</div><div>         LocalHeapSize;</div></code>
+                                <span>15.</span><code><div>};</div></code>
+                                <span>16.</span><code></code>
+                                <span>17.</span><code><div class="keyword">uint32_t</div><div> QueueCount  = </div><div class="number">0</div><div>;</div></code>
+                                <span>18.</span><code></code>
+                                <span>19.</span><code><div>std::vector&lt;PhysicalDeviceInfo&gt; PhysicalDevices;</div></code>
+                                <span>20.</span><code></code>
+                                <span>21.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; DeviceHandles.size(); i++)</div></code>
+                                <span>22.</span><code><div>{</div></code>
+                                <span>23.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceFeatures</div><div> DeviceFeatures{};</div></code>
+                                <span>24.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceProperties</div><div> DeviceProperties{};</div></code>
+                                <span>25.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceMemoryProperties</div><div> MemoryProperties{};</div></code>
+                                <span>26.</span><code></code>
+                                <span>27.</span><code><div>    </div><div class="datatype">PhysicalDeviceInfo</div><div> DeviceInfo{ DeviceHandles[i], i, </div><div class="number">0</div><div>, </div><div class="enum">UINT32_MAX</div><div>, </div><div class="number">0</div><div>, </div><div class="number">0</div><div> };</div></code>
+                                <span>28.</span><code></code>
+                                <span>29.</span><code><div>    vkGetPhysicalDeviceFeatures(DeviceHandles[i], &amp;DeviceFeatures);</div></code>
+                                <span>30.</span><code><div>    vkGetPhysicalDeviceProperties(DeviceHandles[i], &amp;DeviceProperties);</div></code>
+                                <span>31.</span><code><div>    vkGetPhysicalDeviceMemoryProperties(DeviceHandles[i], &amp;MemoryProperties);</div></code>
+                                <span>32.</span><code></code>
+                                <span>33.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, </div><div class="keyword">nullptr</div><div>);</div></code>
+                                <span>34.</span><code></code>
+                                <span>35.</span><code><div>    std::vector&lt;VkQueueFamilyProperties&gt; QueueGroups(QueueCount);</div></code>
+                                <span>36.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, QueueGroups.data());</div></code>
+                                <span>37.</span><code></code>
+                                <span>38.</span><code><div>    std::map&lt;VkPhysicalDeviceType, </div><div class="keyword">uint32_t</div><div>&gt;::</div><div class="datatype">const_iterator</div><div> it = PreferenceOrder.find(DeviceProperties.deviceType);</div></code>
+                                <span>39.</span><code><div>    if (it != PreferenceOrder.end())</div></code>
+                                <span>40.</span><code><div>    {</div></code>
+                                <span>41.</span><code><div>        DeviceInfo.PreferenceIndex = it&minus;&gt;second;</div></code>
+                                <span>42.</span><code><div>    }</div></code>
+                                <span>43.</span><code></code>
+                                <span>44.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; QueueGroups.size(); j++)</div></code>
+                                <span>45.</span><code><div>    {</div></code>
+                                <span>46.</span><code><div>        if (QueueGroups[j].queueFlags &amp; </div><div class="enum">VK_QUEUE_GRAPHICS_BIT</div><div>)</div></code>
+                                <span>47.</span><code><div>        {</div></code>
+                                <span>48.</span><code><div>            DeviceInfo.GraphicsQueueGroup = std::min(DeviceInfo.GraphicsQueueGroup, j); </div><div class="comment">// Pick the first (minimum) available group, we only use 1 gfx queue, so the group does not matter</div></code>
+                                <span>49.</span><code><div>            DeviceInfo.NumGraphicsQueues += QueueGroups[j].queueCount;</div></code>
+                                <span>50.</span><code><div>        }</div></code>
+                                <span>51.</span><code><div>    }</div></code>
+                                <span>52.</span><code></code>
+                                <span>53.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; MemoryProperties.memoryHeapCount; j++)</div></code>
+                                <span>54.</span><code><div>    {</div></code>
+                                <span>55.</span><code><div>        if (MemoryProperties.memoryHeaps[j].flags &amp; </div><div class="enum">VK_MEMORY_HEAP_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>56.</span><code><div>        {</div></code>
+                                <span>57.</span><code><div>            DeviceInfo.LocalHeapSize += MemoryProperties.memoryHeaps[j].size;</div></code>
+                                <span>58.</span><code><div>        }</div></code>
+                                <span>59.</span><code><div>    }</div></code>
+                                <span>60.</span><code></code>
+                                <span>61.</span><code><div>    PhysicalDevices.push_back(DeviceInfo);</div></code>
+                                <span>62.</span><code><div>}</div></code>
+                                <span>63.</span><code></code>
+                                <span>64.</span><code><div>Assert(PhysicalDevices.size() &gt; </div><div class="number">0</div><div>, </div><div class="string">"Could not find a supported GPU"</div><div>);</div></code>
+                                <span>65.</span><code></code>
+                                <span>66.</span><code><div class="preprocessor">#define COMPARE(a, b) { if ((a) > (b)) { return true; } else if ((a) < (b)) { return false; } }</div></code>
+                                <span>67.</span><code><div>std::sort(PhysicalDevices.begin(), PhysicalDevices.end(), [](</div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; lhs,</div></code>
+                                <span>68.</span><code><div>    </div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; rhs) &minus;&gt; </div><div class="keyword">bool</div><div> {</div></code>
+                                <span>69.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.PreferenceIndex, rhs.PreferenceIndex);</div></code>
+                                <span>70.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.NumGraphicsQueues, rhs.NumGraphicsQueues);</div></code>
+                                <span>71.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.LocalHeapSize, rhs.LocalHeapSize);</div></code>
+                                <span>72.</span><code><div>        </div><div class="datatype">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
+                                <span>73.</span><code><div>    }</div></code>
+                                <span>74.</span><code><div>);</div></code>
+                                <span>75.</span><code><div class="preprocessor">#undef CMP</div></code>
+                                <span>76.</span><code></code>
+                                <span>77.</span><code><div>PhysicalDevice = PhysicalDevices[</div><div class="number">0</div><div>].Handle;</div></code>
+                                <span>78.</span><code><div>GraphicsQueueGroup = PhysicalDevices[</div><div class="number">0</div><div>].GraphicsQueueGroup;</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Note we also store the graphics queue group index because this will be used to create the graphics queue later on.
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>4 - Creating the Vulkan device:</b>
+                    </div>
+                    <p>
+                        Once the physical device is determined, we have to create a Vulkan device for that physical device.
+                    </p>
+                    <br>
+                    <p>
+                        Similar to when we had created the instance, we can get the device's available layers/extensions using the functions <code>vkEnumerateDeviceLayerProperties</code> and <code>vkEnumerateDeviceExtensionProperties</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">uint32_t</div><div> ExtCount = </div><div class="number">0</div><div>;</div></code>
+                                <span> 2.</span><code><div class="keyword">uint32_t</div><div> LayerCount = </div><div class="number">0</div><div>;</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div>Assert(vkEnumerateDeviceLayerProperties(PhysicalDevice, &amp;ExtCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to get number of device layers"</div><div>);</div></code>
+                                <span> 5.</span><code></code>
+                                <span> 6.</span><code><div>std::vector&lt;VkLayerProperties&gt; AvailableLayers(ExtCount);</div></code>
+                                <span> 7.</span><code><div>Assert(vkEnumerateDeviceLayerProperties(PhysicalDevice, &amp;ExtCount, AvailableLayers.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to get device layers"</div><div>);</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt;= AvailableLayers.size(); i++)</div></code>
+                                <span>10.</span><code><div>{</div></code>
+                                <span>11.</span><code><div>    </div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>* pLayerName = (i == </div><div class="number">0</div><div>) ? </div><div class="keyword">nullptr</div><div> : AvailableLayers[i &minus; </div><div class="number">1</div><div>].layerName;</div></code>
+                                <span>12.</span><code></code>
+                                <span>13.</span><code><div>    Assert(vkEnumerateDeviceExtensionProperties(PhysicalDevice, pLayerName, &amp;LayerCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get extension count for instance layer"</div><div>);</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div>    std::vector&lt;VkExtensionProperties&gt; AvailableExtensions(LayerCount);</div></code>
+                                <span>16.</span><code><div>    Assert(vkEnumerateDeviceExtensionProperties(PhysicalDevice, pLayerName, &amp;LayerCount, AvailableExtensions.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get extensions for instance layer"</div><div>);</div></code>
+                                <span>17.</span><code></code>
+                                <span>18.</span><code><div>    printf(</div><div class="string">"Device layer: %s\n"</div><div>, (pLayerName == </div><div class="keyword">nullptr</div><div>) ? </div><div class="string">"Global"</div><div> : pLayerName);</div></code>
+                                <span>19.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; AvailableExtensions.size(); j++)</div></code>
+                                <span>20.</span><code><div>    {</div></code>
+                                <span>21.</span><code><div>        printf(</div><div class="string">"\t%s\n"</div><div>, AvailableExtensions[j].extensionName);</div></code>
+                                <span>22.</span><code><div>    }</div></code>
+                                <span>23.</span><code><div>}</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Note that we require the <code>VK_KHR_SWAPCHAIN_EXTENSION_NAME</code> extension when creating the device, because we will be creating a swapchain on this device.
+                    </p>
+                    <br>
+                    <p>
+                        Once we have figured out which layers/extensions are available and which ones we need, we can create the device. Note that we also have to request the queues we will be using
+                        at the device creation time in the <code>VkDeviceQueueCreateInfo</code> structure. Here we only request the one graphics queue from the group we picked in section 3.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div>std::vector&lt;</div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>*&gt; RequiredExtensions { </div><div class="enum">VK_KHR_SWAPCHAIN_EXTENSION_NAME</div><div> };</div></code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code><div class="keyword">const</div><div> </div><div class="keyword">float</div><div> QueuePriority = </div><div class="number">1.0f</div><div>;</div></code>
+                                <span> 4.</span><code></code>
+                                <span> 5.</span><code><div class="datatype">VkDeviceQueueCreateInfo</div><div> QueueInfo =</div></code>
+                                <span> 6.</span><code><div>{</div></code>
+                                <span> 7.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>10.</span><code><div>    .queueFamilyIndex = GraphicsQueueGroup,</div></code>
+                                <span>11.</span><code><div>    .queueCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>12.</span><code><div>    .pQueuePriorities = &amp;QueuePriority</div></code>
+                                <span>13.</span><code><div>};</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div class="datatype">VkDeviceCreateInfo</div><div> DeviceInfo =</div></code>
+                                <span>16.</span><code><div>{</div></code>
+                                <span>17.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO</div><div>,</div></code>
+                                <span>18.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>19.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>20.</span><code><div>    .queueCreateInfoCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>21.</span><code><div>    .pQueueCreateInfos = &amp;QueueInfo,</div></code>
+                                <span>22.</span><code><div>    .enabledLayerCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>23.</span><code><div>    .ppEnabledLayerNames = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>24.</span><code><div>    .enabledExtensionCount = </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">uint32_t</div><div>&gt;(RequiredExtensions.size()),</div></code>
+                                <span>25.</span><code><div>    .ppEnabledExtensionNames = RequiredExtensions.data(),</div></code>
+                                <span>26.</span><code><div>    .pEnabledFeatures = </div><div class="keyword">nullptr</div></code>
+                                <span>27.</span><code><div>};</div></code>
+                                <span>28.</span><code></code>
+                                <span>29.</span><code><div>Assert(vkCreateDevice(PhysicalDevice, &amp;DeviceInfo, </div><div class="keyword">nullptr</div><div>, &amp;Device) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create vk device"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>5 - Creating the graphics queue:</b>
+                    </div>
+                    <p>
+                        We already created the graphics queue in section 4, so we can simply get a handle to it using <code>vkGetDeviceQueue</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="datatype">VkQueue</div><div> GraphicsQueue { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span>2.</span><code></code>
+                                <span>3.</span><code><div>...</div></code>
+                                <span>4.</span><code></code>
+                                <span>5.</span><code><div>vkGetDeviceQueue(Device, GraphicsQueueGroup, </div><div class="number">0</div><div>, &amp;GraphicsQueue);</div></code>
+                                <span>6.</span><code><div>Assert(GraphicsQueue != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Could not get gfx queue 0"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        However, the queue still needs a couple more objects for us to be able to use it. Those objects are:
+                        <ul>
+                            <li>A command pool</li>
+                            <li>A command buffer</li>
+                            <li>A fence</li>
+                        </ul>
+                    </p>
+                    <br>
+                    <p>
+                        A command pool, represented by the structure <code>VkCommandPool</code>, is used to allocate command buffers. Command buffers, represented by the structure
+                        <code>VkCommandBuffer</code>, are used to record commands for rendering and doing other graphics operations. A command pool can be used to allocate many command buffers,
+                        but we will only need one for our simple app. And lastly, the fence is used for syncronizing work between the CPU and GPU. We will give Vulkan this fence object
+                        when we submit work to the GPU, and this fence will get signalled once the workload finishes. This will let us wait on the fence for the submission to finish.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkCommandPool</div><div>                       CommandPool { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 2.</span><code><div class="datatype">VkCommandBuffer</div><div>                     CommandBuffer { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 3.</span><code><div class="datatype">VkFence</div><div>                             Fence { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 4.</span><code></code>
+                                <span> 5.</span><code><div>...</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div class="datatype">VkCommandPoolCreateInfo</div><div> CommandPoolInfo =</div></code>
+                                <span> 8.</span><code><div>{</div></code>
+                                <span> 9.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO</div><div>,</div></code>
+                                <span>10.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>11.</span><code><div>    .flags = </div><div class="enum">VK_COMMAND_POOL_CREATE_TRANSIENT_BIT</div><div> | </div><div class="enum">VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT</div><div>,</div></code>
+                                <span>12.</span><code><div>    .queueFamilyIndex = GraphicsQueueGroup</div></code>
+                                <span>13.</span><code><div>};</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div>Assert(vkCreateCommandPool(Device, &amp;CommandPoolInfo, </div><div class="keyword">nullptr</div><div>, &amp;CommandPool) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create the command pool"</div><div>);</div></code>
+                                <span>16.</span><code></code>
+                                <span>17.</span><code><div class="datatype">VkCommandBufferAllocateInfo</div><div> CommandBufferInfo =</div></code>
+                                <span>18.</span><code><div>{</div></code>
+                                <span>19.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO</div><div>,</div></code>
+                                <span>20.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>21.</span><code><div>    .commandPool = CommandPool,</div></code>
+                                <span>22.</span><code><div>    .level = </div><div class="enum">VK_COMMAND_BUFFER_LEVEL_PRIMARY</div><div>,</div></code>
+                                <span>23.</span><code><div>    .commandBufferCount = </div><div class="number">1</div></code>
+                                <span>24.</span><code><div>};</div></code>
+                                <span>25.</span><code></code>
+                                <span>26.</span><code><div>Assert(vkAllocateCommandBuffers(Device, &amp;CommandBufferInfo, &amp;CommandBuffer) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create the command buffer"</div><div>);</div></code>
+                                <span>27.</span><code></code>
+                                <span>28.</span><code><div class="datatype">VkFenceCreateInfo</div><div> FenceInfo =</div></code>
+                                <span>29.</span><code><div>{</div></code>
+                                <span>30.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_FENCE_CREATE_INFO</div><div>,</div></code>
+                                <span>31.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>32.</span><code><div>    .flags = </div><div class="number">0</div></code>
+                                <span>33.</span><code><div>};</div></code>
+                                <span>34.</span><code></code>
+                                <span>35.</span><code><div>Assert(vkCreateFence(Device, &amp;FenceInfo, </div><div class="keyword">nullptr</div><div>, &amp;Fence) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create fence"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>6 - Initialize memory heaps/buffers:</b>
+                    </div>
+                    <p>
+                        Memory management is a very important concept in Vulkan. The developer is responsible for figuring out which parts of the memory to use, how to manage
+                        the memory usage, etc. For this example we are only concerned with two types of memory:
+                        <ol>
+                            <li>Device local memory (the VRAM inside the GPU)</li>
+                            <li>Host visible memory (CPU visible memory)</li>
+                        </ol>
+                    </p>
+                    <br>
+                    <p>
+                        These categories are not mutually exclusive. Most discrete GPUs have their own local video memory (VRAM) which is efficient to access, but only a portion of that is accessible
+                        from the CPU. Integrated GPUs on the other hand, can see the entire system memory as both local and CPU visible. Resizable bar can also give the CPU access to the entire GPU memory,
+                        but here we assume that is not being used. A very common and simple solution to manage this case, is to use the large local CPU invisible memory as the primary heap, and use the small
+                        local CPU visible memory as a staging area. Data will first be copied to the staging area using the CPU, and then transferred from the staging area to the primary heap using the GPU.
+                    </p>
+                    <br>
+                    <p>
+                        We first need to get the device's memory properties, using <code>vkGetPhysicalDeviceMemoryProperties</code>, and then we can figure out the most optimal heaps available on the GPU.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">uint32_t</div><div>                         PrimaryHeapIndex { </div><div class="enum">UINT32_MAX</div><div> };</div></code>
+                                <span> 2.</span><code><div class="keyword">uint32_t</div><div>                         UploadHeapIndex { </div><div class="enum">UINT32_MAX</div><div> };</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div class="datatype">VkPhysicalDeviceMemoryProperties</div><div> MemoryProperties {};</div></code>
+                                <span> 5.</span><code></code>
+                                <span> 6.</span><code><div>...</div></code>
+                                <span> 7.</span><code></code>
+                                <span> 8.</span><code><div>vkGetPhysicalDeviceMemoryProperties(PhysicalDevice, &amp;MemoryProperties);</div></code>
+                                <span> 9.</span><code></code>
+                                <span>10.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; MemoryProperties.memoryTypeCount; i++)</div></code>
+                                <span>11.</span><code><div>{</div></code>
+                                <span>12.</span><code><div>    </div><div class="keyword">uint64_t</div><div> HeapSize = MemoryProperties.memoryHeaps[MemoryProperties.memoryTypes[i].heapIndex].size;</div></code>
+                                <span>13.</span><code></code>
+                                <span>14.</span><code><div>    if (MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>15.</span><code><div>    {</div></code>
+                                <span>16.</span><code><div>        if ((PrimaryHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[PrimaryHeapIndex].size))</div></code>
+                                <span>17.</span><code><div>        {</div></code>
+                                <span>18.</span><code><div>            PrimaryHeapIndex = MemoryProperties.memoryTypes[i].heapIndex;</div></code>
+                                <span>19.</span><code><div>        }</div></code>
+                                <span>20.</span><code><div>    }</div></code>
+                                <span>21.</span><code></code>
+                                <span>22.</span><code><div>    if ((MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>23.</span><code><div>        &amp;&amp; (MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</div><div>))</div></code>
+                                <span>24.</span><code><div>    {</div></code>
+                                <span>25.</span><code><div>        if ((UploadHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[UploadHeapIndex].size))</div></code>
+                                <span>26.</span><code><div>        {</div></code>
+                                <span>27.</span><code><div>            UploadHeapIndex = MemoryProperties.memoryTypes[i].heapIndex;</div></code>
+                                <span>28.</span><code><div>            UploadBufferSize = std::min(</div><div class="enum">ALIGN</div><div>(HeapSize / </div><div class="number">4</div><div>, </div><div class="enum">MB</div><div>), </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">uint64_t</div><div>&gt;(</div><div class="number">16</div><div> * </div><div class="enum">MB</div><div>));</div></code>
+                                <span>29.</span><code><div>        }</div></code>
+                                <span>30.</span><code><div>    }</div></code>
+                                <span>31.</span><code><div>}</div></code>
+                                <span>32.</span><code></code>
+                                <span>33.</span><code><div>Assert(PrimaryHeapIndex != </div><div class="enum">UINT32_MAX</div><div>, </div><div class="string">"Could not find primary heap"</div><div>);</div></code>
+                                <span>34.</span><code><div>Assert(UploadHeapIndex != </div><div class="enum">UINT32_MAX</div><div>, </div><div class="string">"Could not find upload heap"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Once we have the primary and upload heaps figured out, we can allocate a large buffer in the upload heap, which will be used as an intermediate buffer before
+                        being transferred to the primary heap for future resources. Note that after we create the upload buffer, we also have to map it to the CPU address space using <code>vkMapMemory</code>, so that the
+                        CPU can access it.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkBuffer</div><div>                            UploadBuffer { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 2.</span><code><div class="datatype">VkDeviceMemory</div><div>                      UploadBufferMemory { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div class="keyword">uint64_t</div><div>                            UploadBufferSize { </div><div class="number">0</div><div> };</div></code>
+                                <span> 5.</span><code><div class="keyword">void</div><div>*                               UploadBufferCpuVA { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div>...</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div class="datatype">VkBufferCreateInfo</div><div> UploadBufferInfo =</div></code>
+                                <span>10.</span><code><div>{</div></code>
+                                <span>11.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO</div><div>,</div></code>
+                                <span>12.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>13.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>14.</span><code><div>    .size = UploadBufferSize,</div></code>
+                                <span>15.</span><code><div>    .usage = </div><div class="enum">VK_BUFFER_USAGE_TRANSFER_SRC_BIT</div><div>,</div></code>
+                                <span>16.</span><code><div>    .sharingMode = </div><div class="enum">VK_SHARING_MODE_EXCLUSIVE</div><div>,</div></code>
+                                <span>17.</span><code><div>    .queueFamilyIndexCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>18.</span><code><div>    .pQueueFamilyIndices = </div><div class="keyword">nullptr</div></code>
+                                <span>19.</span><code><div>};</div></code>
+                                <span>20.</span><code></code>
+                                <span>21.</span><code><div>Assert(vkCreateBuffer(Device, &amp;UploadBufferInfo, </div><div class="keyword">nullptr</div><div>, &amp;UploadBuffer) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create upload buffer"</div><div>);</div></code>
+                                <span>22.</span><code></code>
+                                <span>23.</span><code><div class="datatype">VkMemoryRequirements</div><div> UploadBufferRequirements = {};</div></code>
+                                <span>24.</span><code><div>vkGetBufferMemoryRequirements(Device, UploadBuffer, &amp;UploadBufferRequirements);</div></code>
+                                <span>25.</span><code></code>
+                                <span>26.</span><code><div>AllocateMemory(UploadBufferRequirements, </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div> &amp; </div><div class="enum">VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</div><div>, UploadHeapIndex, UploadBufferMemory);</div></code>
+                                <span>27.</span><code><div>Assert(vkBindBufferMemory(Device, UploadBuffer, UploadBufferMemory, </div><div class="number">0</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to bind upload buffer memory"</div><div>);</div></code>
+                                <span>28.</span><code><div>Assert(vkMapMemory(Device, UploadBufferMemory, </div><div class="number">0</div><div>, UploadBufferSize, </div><div class="number">0</div><div>, &amp;UploadBufferCpuVA) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to map upload buffer memory"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        This is the helper function used above, which allocates memory directly from a heaps given its index. This will be useful for other allocations
+                        as well, such as the vertex buffer, and any other future allocations we need.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">void</div><div> AllocateMemory(</div><div class="keyword">const</div><div> VkMemoryRequirements&amp; rMemoryRequirements, </div><div class="datatype">VkMemoryPropertyFlags</div><div> Flags, </div><div class="keyword">uint32_t</div><div> HeapIndex, VkDeviceMemory&amp; rMemory) </div><div class="keyword">const</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; MemoryProperties.memoryTypeCount; i++)</div></code>
+                                <span> 4.</span><code><div>    {</div></code>
+                                <span> 5.</span><code><div>        if ((rMemoryRequirements.memoryTypeBits &amp; (</div><div class="number">1</div><div> &lt;&lt; i))</div></code>
+                                <span> 6.</span><code><div>            &amp;&amp; ((MemoryProperties.memoryTypes[i].propertyFlags &amp; Flags) == Flags)</div></code>
+                                <span> 7.</span><code><div>            &amp;&amp; (MemoryProperties.memoryTypes[i].heapIndex == HeapIndex))</div></code>
+                                <span> 8.</span><code><div>        {</div></code>
+                                <span> 9.</span><code><div>            </div><div class="datatype">VkMemoryAllocateInfo</div><div> AllocationInfo;</div></code>
+                                <span>10.</span><code><div>            AllocationInfo.sType = </div><div class="enum">VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO</div><div>;</div></code>
+                                <span>11.</span><code><div>            AllocationInfo.pNext = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span>12.</span><code><div>            AllocationInfo.allocationSize = rMemoryRequirements.size;</div></code>
+                                <span>13.</span><code><div>            AllocationInfo.memoryTypeIndex = i;</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div>            Assert(vkAllocateMemory(Device, &amp;AllocationInfo, </div><div class="keyword">nullptr</div><div>, &amp;rMemory) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to allocate vertex buffer memory"</div><div>);</div></code>
+                                <span>16.</span><code><div>            </div><div class="keyword">break</div><div>;</div></code>
+                                <span>17.</span><code><div>        }</div></code>
+                                <span>18.</span><code><div>    }</div></code>
+                                <span>19.</span><code></code>
+                                <span>20.</span><code><div>    Assert(rMemory != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Unable to allocate memory"</div><div>);</div></code>
+                                <span>21.</span><code><div>}</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>7 - Creating the swapchain:</b>
+                    </div>
+                    <p>
+                        The swapchain contains the sequence of images which we will render to and present on the screen.
+                    </p>
+                    <br>
+                    <p>
+                        Before we create the swapchain, we need to create a Vulkan surface for our SDL window. This surface will let Vulkan render on SDL's window,
+                        and will be required for creating the swapchain. SDL provides a function <code>SDL_Vulkan_CreateSurface</code> to create this.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="datatype">VkSurfaceKHR</div><div> Surface { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span>2.</span><code></code>
+                                <span>3.</span><code><div>...</div></code>
+                                <span>4.</span><code></code>
+                                <span>5.</span><code><div>Assert(SDL_Vulkan_CreateSurface(Window, Instance, &amp;Surface) == </div><div class="enum">VK_TRUE</div><div>, </div><div class="string">"Failed to create surface"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After we create the surface, we need to check if our required surface formats and presentation mode are supported. The surface format
+                        is the format of the swapchain images, in our case <code>VK_FORMAT_B8G8R8A8_UNORM</code>, which gives 8 bits to each red/green/blue/alpha component.
+                        The presentation mode controls how the images of the swapchain are presented. We will be using <code>VK_PRESENT_MODE_FIFO_KHR</code>, which will present the swapchain images one by one in a queue
+                        and will only present an image once the previous one has been fully presented (i.e. vertical sync).
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">uint32_t</div><div> PresentModeCount = </div><div class="number">0</div><div>;</div></code>
+                                <span> 2.</span><code><div class="keyword">uint32_t</div><div> SurfaceFormatCount = </div><div class="number">0</div><div>;</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div>Assert(vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, Surface, &amp;PresentModeCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get the number of supported presentation modes"</div><div>);</div></code>
+                                <span> 5.</span><code><div>Assert(vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, Surface, &amp;SurfaceFormatCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get the number of supported surface formats"</div><div>);</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div>std::vector&lt;VkPresentModeKHR&gt; PresentModes(PresentModeCount);</div></code>
+                                <span> 8.</span><code><div>std::vector&lt;VkSurfaceFormatKHR&gt; SurfaceFormats(SurfaceFormatCount);</div></code>
+                                <span> 9.</span><code></code>
+                                <span>10.</span><code><div>Assert(vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, Surface, &amp;PresentModeCount, PresentModes.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get the supported presentation modes"</div><div>);</div></code>
+                                <span>11.</span><code><div>Assert(vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, Surface, &amp;SurfaceFormatCount, SurfaceFormats.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get the number of supported surface formats"</div><div>);</div></code>
+                                <span>12.</span><code></code>
+                                <span>13.</span><code><div class="keyword">for</div><div> (std::vector&lt;VkSurfaceFormatKHR&gt;::</div><div class="datatype">const_iterator</div><div> it = SurfaceFormats.begin(); it != SurfaceFormats.end(); it++)</div></code>
+                                <span>14.</span><code><div>{</div></code>
+                                <span>15.</span><code><div>    if (it&minus;&gt;format == </div><div class="enum">VK_FORMAT_B8G8R8A8_UNORM</div><div>) { SurfaceFormat = *it; </div><div class="keyword">break</div><div>; }</div></code>
+                                <span>16.</span><code><div>}</div></code>
+                                <span>17.</span><code></code>
+                                <span>18.</span><code><div>Assert(SurfaceFormat.format != </div><div class="enum">VK_FORMAT_UNDEFINED</div><div>, </div><div class="string">"Could not find required surface format"</div><div>);</div></code>
+                                <span>19.</span><code><div>Assert(std::find(PresentModes.begin(), PresentModes.end(), </div><div class="enum">VK_PRESENT_MODE_FIFO_KHR</div><div>) != PresentModes.end(), </div><div class="string">"Could not find required present mode"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        We also need to tell the swapchain the size of the images to use and the minimum numbers of swapchain images to create. For that information we first call <code>vkGetPhysicalDeviceSurfaceCapabilitiesKHR</code>
+                        to get the surface capabilities, which will tell us the current surface's dimensions in the <code>currentExtent</code> field, and the minimum number of images required in the <code>minImageCount</code> field.
+                        Once we have this information, we can create the swapchain.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkSurfaceCapabilitiesKHR</div><div> SurfaceCapabilities = { </div><div class="number">0</div><div> };</div></code>
+                                <span> 2.</span><code><div>Assert(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(PhysicalDevice, Surface, &amp;SurfaceCapabilities) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get surface capabilities"</div><div>);</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div class="datatype">VkSwapchainCreateInfoKHR</div><div> SwapchainInfo =</div></code>
+                                <span> 5.</span><code><div>{</div></code>
+                                <span> 6.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .surface = Surface,</div></code>
+                                <span>10.</span><code><div>    .minImageCount = SurfaceCapabilities.minImageCount,</div></code>
+                                <span>11.</span><code><div>    .imageFormat = SurfaceFormat.format,</div></code>
+                                <span>12.</span><code><div>    .imageColorSpace = SurfaceFormat.colorSpace,</div></code>
+                                <span>13.</span><code><div>    .imageExtent =</div></code>
+                                <span>14.</span><code><div>    {</div></code>
+                                <span>15.</span><code><div>        .width = SurfaceCapabilities.currentExtent.width,</div></code>
+                                <span>16.</span><code><div>        .height = SurfaceCapabilities.currentExtent.height</div></code>
+                                <span>17.</span><code><div>    },</div></code>
+                                <span>18.</span><code><div>    .imageArrayLayers = </div><div class="number">1</div><div>,</div></code>
+                                <span>19.</span><code><div>    .imageUsage = </div><div class="enum">VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</div><div>,</div></code>
+                                <span>20.</span><code><div>    .imageSharingMode = </div><div class="enum">VK_SHARING_MODE_EXCLUSIVE</div><div>,</div></code>
+                                <span>21.</span><code><div>    .queueFamilyIndexCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>22.</span><code><div>    .pQueueFamilyIndices = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>23.</span><code><div>    .preTransform = </div><div class="enum">VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</div><div>,</div></code>
+                                <span>24.</span><code><div>    .compositeAlpha = </div><div class="enum">VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR</div><div>,</div></code>
+                                <span>25.</span><code><div>    .presentMode = </div><div class="enum">VK_PRESENT_MODE_FIFO_KHR</div><div>,</div></code>
+                                <span>26.</span><code><div>    .clipped = </div><div class="enum">VK_TRUE</div><div>,</div></code>
+                                <span>27.</span><code><div>    .oldSwapchain = </div><div class="keyword">nullptr</div></code>
+                                <span>28.</span><code><div>};</div></code>
+                                <span>29.</span><code></code>
+                                <span>30.</span><code><div>Assert(vkCreateSwapchainKHR(Device, &amp;SwapchainInfo, </div><div class="keyword">nullptr</div><div>, &amp;Swapchain) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create swapchain"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After we create the swapchain, we can get the swapchain's images using <code>vkGetSwapchainImagesKHR</code>. This will be
+                        useful for section 9 when we create the framebuffers.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">enum</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    MinSwapchainImages = </div><div class="number">2</div><div>,</div></code>
+                                <span> 4.</span><code><div>    MaxSwapchainImages = </div><div class="number">4</div></code>
+                                <span> 5.</span><code><div>};</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div class="datatype">VkImage</div><div> SwapchainImages[MaxSwapchainImages] {};</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div>...</div></code>
+                                <span>10.</span><code></code>
+                                <span>11.</span><code><div>Assert(vkGetSwapchainImagesKHR(Device, Swapchain, &amp;NumSwapchainImages, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get number of swapchain images"</div><div>);</div></code>
+                                <span>12.</span><code><div>Assert((NumSwapchainImages &gt;= MinSwapchainImages) &amp;&amp; (NumSwapchainImages &lt;= MaxSwapchainImages), </div><div class="string">"Invalid number of swapchain images"</div><div>);</div></code>
+                                <span>13.</span><code><div>Assert(vkGetSwapchainImagesKHR(Device, Swapchain, &amp;NumSwapchainImages, SwapchainImages) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get swapchain images"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Lastly, we need to create semaphores to syncronize access to the swapchain's images. We will need two of them in section 13 - one for waiting for access to the swapchain's image before
+                        rendering, and one for waiting for the swapchain's image to become ready to be presented after rendering is finished. The semaphores can be created using
+                        <code>vkCreateSemaphore</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="datatype">VkSemaphoreCreateInfo</div><div> SemaphoreInfo =</div></code>
+                                <span>2.</span><code><div>{</div></code>
+                                <span>3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO</div><div>,</div></code>
+                                <span>4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>5.</span><code><div>    .flags = </div><div class="number">0</div></code>
+                                <span>6.</span><code><div>};</div></code>
+                                <span>7.</span><code></code>
+                                <span>8.</span><code><div>Assert(vkCreateSemaphore(Device, &amp;SemaphoreInfo, </div><div class="keyword">nullptr</div><div>, &amp;AcquireSemaphore) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create semaphore"</div><div>);</div></code>
+                                <span>9.</span><code><div>Assert(vkCreateSemaphore(Device, &amp;SemaphoreInfo, </div><div class="keyword">nullptr</div><div>, &amp;ReleaseSemaphore) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create semaphore"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>8 - Creating the render pass:</b>
+                    </div>
+                    <p>
+                        The render pass is used to describe the render targets/attachments the current rendering workload will use.
+                        This object will be is necessary to create the framebuffer, and also required by Vulkan in the main rendering logic since rendering operations can only be done in render passes.
+                        In this example, we will only be rendering to the swapchain surfaces.
+                    </p>
+                    <br>
+                    <p>
+                        We begin by describing the attachment format, the color/depth/stencil buffer content load/store behaviours at the beginning and end of the render pass,
+                        and the image layout at the beginning/end of the render pass. This information is specified an array of <code>VkAttachmentDescription</code> structures,
+                        and one is needed for each attachment the render pass will use. In our case, we will only have one color attachment, which will be the swapchain surface.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkAttachmentDescription</div><div> AttachmentDescriptions[] =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    { </div><div class="comment">// Color attachment</div></code>
+                                <span> 4.</span><code><div>        .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 5.</span><code><div>        .format = SurfaceFormat.format,</div></code>
+                                <span> 6.</span><code><div>        .samples = </div><div class="enum">VK_SAMPLE_COUNT_1_BIT</div><div>,</div></code>
+                                <span> 7.</span><code><div>        .loadOp = </div><div class="enum">VK_ATTACHMENT_LOAD_OP_CLEAR</div><div>,</div></code>
+                                <span> 8.</span><code><div>        .storeOp = </div><div class="enum">VK_ATTACHMENT_STORE_OP_STORE</div><div>,</div></code>
+                                <span> 9.</span><code><div>        .stencilLoadOp = </div><div class="enum">VK_ATTACHMENT_LOAD_OP_DONT_CARE</div><div>,</div></code>
+                                <span>10.</span><code><div>        .stencilStoreOp = </div><div class="enum">VK_ATTACHMENT_STORE_OP_DONT_CARE</div><div>,</div></code>
+                                <span>11.</span><code><div>        .initialLayout = </div><div class="enum">VK_IMAGE_LAYOUT_UNDEFINED</div><div>, </div><div class="comment">// image layout undefined at the beginning of the render pass</div></code>
+                                <span>12.</span><code><div>        .finalLayout = </div><div class="enum">VK_IMAGE_LAYOUT_PRESENT_SRC_KHR</div><div> </div><div class="comment">// prepare the color attachment for presentation</div></code>
+                                <span>13.</span><code><div>    }</div></code>
+                                <span>14.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After describing the attachments, we must describe the subpasses. We will only have one pass, so we only define one <code>VkSubpassDescription</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkAttachmentReference</div><div> ColorAttachments[] =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    { </div><div class="comment">// Color attachment</div></code>
+                                <span> 4.</span><code><div>        .attachment = </div><div class="number">0</div><div>,</div></code>
+                                <span> 5.</span><code><div>        .layout = </div><div class="enum">VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</div><div> </div><div class="comment">// image layout is VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL during render pass</div></code>
+                                <span> 6.</span><code><div>    }</div></code>
+                                <span> 7.</span><code><div>};</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div class="datatype">VkSubpassDescription</div><div> SubpassDescription =</div></code>
+                                <span>10.</span><code><div>{</div></code>
+                                <span>11.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>12.</span><code><div>    .pipelineBindPoint = </div><div class="enum">VK_PIPELINE_BIND_POINT_GRAPHICS</div><div>,</div></code>
+                                <span>13.</span><code><div>    .inputAttachmentCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>14.</span><code><div>    .pInputAttachments = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>15.</span><code><div>    .colorAttachmentCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>16.</span><code><div>    .pColorAttachments = ColorAttachments,</div></code>
+                                <span>17.</span><code><div>    .pResolveAttachments = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>18.</span><code><div>    .pDepthStencilAttachment = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>19.</span><code><div>    .preserveAttachmentCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>20.</span><code><div>    .pPreserveAttachments = </div><div class="keyword">nullptr</div></code>
+                                <span>21.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Once these objects are prepared, the render pass can be created.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkRenderPassCreateInfo</div><div> RenderPassInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .attachmentCount = </div><div class="keyword">sizeof</div><div>(AttachmentDescriptions) / </div><div class="keyword">sizeof</div><div>(VkAttachmentDescription),</div></code>
+                                <span> 7.</span><code><div>    .pAttachments = AttachmentDescriptions,</div></code>
+                                <span> 8.</span><code><div>    .subpassCount = </div><div class="number">1</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .pSubpasses = &amp;SubpassDescription,</div></code>
+                                <span>10.</span><code><div>    .dependencyCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>11.</span><code><div>    .pDependencies = </div><div class="keyword">nullptr</div></code>
+                                <span>12.</span><code><div>};</div></code>
+                                <span>13.</span><code></code>
+                                <span>14.</span><code><div>Assert(vkCreateRenderPass(Device, &amp;RenderPassInfo, </div><div class="keyword">nullptr</div><div>, &amp;RenderPass) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create render pass"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>9 - Creating the framebuffers:</b>
+                    </div>
+                    <p>
+                        After the swapchain and renderpass are created, we must create a framebuffer for each of the swapchain images.
+                    </p>
+                    <br>
+                    <p>
+                        We begin by creating a <code>VkImageView</code> for each swapchain image, which is necessary for each framebuffer.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkImageView</div><div> SwapchainImageViews[MaxSwapchainImages] {};</div></code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code><div>...</div></code>
+                                <span> 4.</span><code></code>
+                                <span> 5.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; NumSwapchainImages; i++)</div></code>
+                                <span> 6.</span><code><div>{</div></code>
+                                <span> 7.</span><code><div>    </div><div class="datatype">VkImageViewCreateInfo</div><div> ImageViewInfo =</div></code>
+                                <span> 8.</span><code><div>    {</div></code>
+                                <span> 9.</span><code><div>        .sType = </div><div class="enum">VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO</div><div>,</div></code>
+                                <span>10.</span><code><div>        .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>11.</span><code><div>        .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>12.</span><code><div>        .image = SwapchainImages[i],</div></code>
+                                <span>13.</span><code><div>        .viewType = </div><div class="enum">VK_IMAGE_VIEW_TYPE_2D</div><div>,</div></code>
+                                <span>14.</span><code><div>        .format = SurfaceFormat.format,</div></code>
+                                <span>15.</span><code><div>        .components =</div></code>
+                                <span>16.</span><code><div>        {</div></code>
+                                <span>17.</span><code><div>            .r = </div><div class="enum">VK_COMPONENT_SWIZZLE_IDENTITY</div><div>,</div></code>
+                                <span>18.</span><code><div>            .g = </div><div class="enum">VK_COMPONENT_SWIZZLE_IDENTITY</div><div>,</div></code>
+                                <span>19.</span><code><div>            .b = </div><div class="enum">VK_COMPONENT_SWIZZLE_IDENTITY</div><div>,</div></code>
+                                <span>20.</span><code><div>            .a = </div><div class="enum">VK_COMPONENT_SWIZZLE_IDENTITY</div></code>
+                                <span>21.</span><code><div>        },</div></code>
+                                <span>22.</span><code><div>        .subresourceRange =</div></code>
+                                <span>23.</span><code><div>        {</div></code>
+                                <span>24.</span><code><div>            .aspectMask = </div><div class="enum">VK_IMAGE_ASPECT_COLOR_BIT</div><div>,</div></code>
+                                <span>25.</span><code><div>            .baseMipLevel = </div><div class="number">0</div><div>,</div></code>
+                                <span>26.</span><code><div>            .levelCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>27.</span><code><div>            .baseArrayLayer = </div><div class="number">0</div><div>,</div></code>
+                                <span>28.</span><code><div>            .layerCount = </div><div class="number">1</div></code>
+                                <span>29.</span><code><div>        }</div></code>
+                                <span>30.</span><code><div>    };</div></code>
+                                <span>31.</span><code></code>
+                                <span>32.</span><code><div>    Assert(vkCreateImageView(Device, &amp;ImageViewInfo, </div><div class="keyword">nullptr</div><div>, &amp;SwapchainImageViews[i]) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create image view"</div><div>);</div></code>
+                                <span>33.</span><code><div>}</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After we have created all the necessary image views, we can create the framebuffers.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkFramebuffer</div><div> Framebuffers[MaxSwapchainImages] {};</div></code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code><div>...</div></code>
+                                <span> 4.</span><code></code>
+                                <span> 5.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; NumSwapchainImages; i++)</div></code>
+                                <span> 6.</span><code><div>{</div></code>
+                                <span> 7.</span><code><div>    </div><div class="datatype">VkImageView</div><div> FramebufferAttachments[] =</div></code>
+                                <span> 8.</span><code><div>    {</div></code>
+                                <span> 9.</span><code><div>        SwapchainImageViews[i]</div></code>
+                                <span>10.</span><code><div>    };</div></code>
+                                <span>11.</span><code></code>
+                                <span>12.</span><code><div>    </div><div class="datatype">VkFramebufferCreateInfo</div><div> FramebufferInfo =</div></code>
+                                <span>13.</span><code><div>    {</div></code>
+                                <span>14.</span><code><div>        .sType = </div><div class="enum">VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO</div><div>,</div></code>
+                                <span>15.</span><code><div>        .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>16.</span><code><div>        .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>17.</span><code><div>        .renderPass = RenderPass,</div></code>
+                                <span>18.</span><code><div>        .attachmentCount = </div><div class="keyword">sizeof</div><div>(FramebufferAttachments) / </div><div class="keyword">sizeof</div><div>(VkImageView),</div></code>
+                                <span>19.</span><code><div>        .pAttachments = FramebufferAttachments,</div></code>
+                                <span>20.</span><code><div>        .width = </div><div class="enum">WIDTH</div><div>,</div></code>
+                                <span>21.</span><code><div>        .height = </div><div class="enum">HEIGHT</div><div>,</div></code>
+                                <span>22.</span><code><div>        .layers = </div><div class="number">1</div></code>
+                                <span>23.</span><code><div>    };</div></code>
+                                <span>24.</span><code></code>
+                                <span>25.</span><code><div>    Assert(vkCreateFramebuffer(Device, &amp;FramebufferInfo, </div><div class="keyword">nullptr</div><div>, &amp;Framebuffers[i]) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create framebuffer"</div><div>);</div></code>
+                                <span>26.</span><code><div>}</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>10 - Create/upload the triangle vertex buffer:</b>
+                    </div>
+                    <p>
+                        At this point, the required Vulkan objects have been set up to provide an equivalent "context" like what OpenGL would provide, and we can start implementing the
+                        Hello Triangle logic. The first step is to create the vertex buffer for the triangle we will be rendering.
+                    </p>
+                    <br>
+                    <p>
+                        We begin by defining the actual vertices. Each vertex has 2 attributes, the position and color, both of which are 3D floating point values.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="keyword">struct</div><div> Vertex</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    </div><div class="keyword">float</div><div> position[</div><div class="number">3</div><div>];</div></code>
+                                <span> 4.</span><code><div>    </div><div class="keyword">float</div><div> color[</div><div class="number">3</div><div>];</div></code>
+                                <span> 5.</span><code><div>};</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div class="keyword">static</div><div> </div><div class="keyword">constexpr</div><div> </div><div class="keyword">const</div><div> </div><div class="datatype">Vertex</div><div> TriangleVertices[] =</div></code>
+                                <span> 8.</span><code><div>{</div></code>
+                                <span> 9.</span><code><div>    { </div><div class="comment">// vertex 0</div></code>
+                                <span>10.</span><code><div>        { &minus;</div><div class="number">0.8f</div><div>, +</div><div class="number">0.8f</div><div>,  </div><div class="number">0.0f</div><div> }, </div><div class="comment">// position</div></code>
+                                <span>11.</span><code><div>        {  </div><div class="number">0.0f</div><div>,  </div><div class="number">0.0f</div><div>,  </div><div class="number">1.0f</div><div> }  </div><div class="comment">// color</div></code>
+                                <span>12.</span><code><div>    },</div></code>
+                                <span>13.</span><code><div>    { </div><div class="comment">// vertex 1</div></code>
+                                <span>14.</span><code><div>        { +</div><div class="number">0.8f</div><div>, +</div><div class="number">0.8f</div><div>,  </div><div class="number">0.0f</div><div> }, </div><div class="comment">// position</div></code>
+                                <span>15.</span><code><div>        {  </div><div class="number">0.0f</div><div>,  </div><div class="number">1.0f</div><div>,  </div><div class="number">0.0f</div><div> }  </div><div class="comment">// color</div></code>
+                                <span>16.</span><code><div>    },</div></code>
+                                <span>17.</span><code><div>    { </div><div class="comment">// vertex 2</div></code>
+                                <span>18.</span><code><div>        {  </div><div class="number">0.0f</div><div>, &minus;</div><div class="number">0.8f</div><div>,  </div><div class="number">0.0f</div><div> }, </div><div class="comment">// position</div></code>
+                                <span>19.</span><code><div>        {  </div><div class="number">1.0f</div><div>,  </div><div class="number">0.0f</div><div>,  </div><div class="number">0.0f</div><div> }  </div><div class="comment">// color</div></code>
+                                <span>20.</span><code><div>    }</div></code>
+                                <span>21.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The next step is to create the buffer, allocate the memory, and bind the memory to that new buffer. Vulkan requires the buffer creation and memory allocation to be seperate because
+                        it gives the programmer flexibility for memory management. For example, if we want, we can create a single memory allocation and sub-allocate that amoungst different buffers. Note that we
+                        are using the <code>AllocateMemory</code> function we created in section 6 to allocate the memory in our primary heap.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkBufferCreateInfo</div><div> BufferInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .size = </div><div class="keyword">sizeof</div><div>(TriangleVertices),</div></code>
+                                <span> 7.</span><code><div>    .usage = </div><div class="enum">VK_BUFFER_USAGE_VERTEX_BUFFER_BIT</div><div> | </div><div class="enum">VK_BUFFER_USAGE_TRANSFER_DST_BIT</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .sharingMode = </div><div class="enum">VK_SHARING_MODE_EXCLUSIVE</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .queueFamilyIndexCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>10.</span><code><div>    .pQueueFamilyIndices = </div><div class="keyword">nullptr</div></code>
+                                <span>11.</span><code><div>};</div></code>
+                                <span>12.</span><code></code>
+                                <span>13.</span><code><div>Assert(vkCreateBuffer(Device, &amp;BufferInfo, </div><div class="keyword">nullptr</div><div>, &amp;VertexBuffer) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create vertex buffer"</div><div>);</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div class="datatype">VkMemoryRequirements</div><div> BufferRequirements = {};</div></code>
+                                <span>16.</span><code><div>vkGetBufferMemoryRequirements(Device, VertexBuffer, &amp;BufferRequirements);</div></code>
+                                <span>17.</span><code></code>
+                                <span>18.</span><code><div>AllocateMemory(BufferRequirements, PrimaryHeapIndex, </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>, VertexBufferMemory);</div></code>
+                                <span>19.</span><code><div>Assert(vkBindBufferMemory(Device, VertexBuffer, VertexBufferMemory, </div><div class="number">0</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to bind vertex buffer memory"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After the vertex buffer has been prepared, we can copy the vertex data into the upload buffer we created in section 6. Here we also tell Vulkan
+                        to flush the memory to make sure all the writes have gone through before moving onto the next steps where we will transfer the data to the primary allocation.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkMappedMemoryRange</div><div> FlushRange =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .memory = UploadBufferMemory,</div></code>
+                                <span> 6.</span><code><div>    .offset = </div><div class="number">0</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .size = </div><div class="enum">VK_WHOLE_SIZE</div></code>
+                                <span> 8.</span><code><div>};</div></code>
+                                <span> 9.</span><code></code>
+                                <span>10.</span><code><div>memcpy(</div><div class="keyword">reinterpret_cast</div><div>&lt;</div><div class="keyword">uint8_t</div><div>*&gt;(UploadBufferCpuVA), TriangleVertices, </div><div class="keyword">sizeof</div><div>(TriangleVertices));</div></code>
+                                <span>11.</span><code><div>Assert(vkFlushMappedMemoryRanges(Device, </div><div class="number">1</div><div>, &amp;FlushRange) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to flush vertex buffer memory"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        When the vertex buffer data is prepared in the upload heap, we can begin preparing the command buffer we will use to transfer the contents from the upload heap
+                        to the primary heap. First we initialize the command buffer with the <code>vkBeginCommandBuffer</code> call. Then we can insert the copy command using <code>vkCmdCopyBuffer</code>,
+                        which will transfer the source buffer's contents to the destination buffer. After we are done adding commands to the command buffer, we can finalize the command buffer using
+                        <code>vkEndCommandBuffer</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkCommandBufferBeginInfo</div><div> CommandBufferBeginInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="enum">VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .pInheritanceInfo = </div><div class="keyword">nullptr</div></code>
+                                <span> 7.</span><code><div>};</div></code>
+                                <span> 8.</span><code></code>
+                                <span> 9.</span><code><div class="datatype">VkBufferCopy</div><div> CopyCmd =</div></code>
+                                <span>10.</span><code><div>{</div></code>
+                                <span>11.</span><code><div>    .srcOffset = </div><div class="number">0</div><div>,</div></code>
+                                <span>12.</span><code><div>    .dstOffset = </div><div class="number">0</div><div>,</div></code>
+                                <span>13.</span><code><div>    .size = </div><div class="keyword">sizeof</div><div>(TriangleVertices)</div></code>
+                                <span>14.</span><code><div>};</div></code>
+                                <span>15.</span><code></code>
+                                <span>16.</span><code><div>Assert(vkBeginCommandBuffer(CommandBuffer, &amp;CommandBufferBeginInfo) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to initialize command buffer"</div><div>);</div></code>
+                                <span>17.</span><code><div>vkCmdCopyBuffer(CommandBuffer, UploadBuffer, VertexBuffer, </div><div class="number">1</div><div>, &amp;CopyCmd);</div></code>
+                                <span>18.</span><code><div>Assert(vkEndCommandBuffer(CommandBuffer) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to finalize command buffer"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After the command buffer has been prepared, we can submit it to the graphics queue we created in sections 4 and 5. Note that Vulkan supports dedicated transfer queues, which may be
+                        more optimized for such copy operations, but we will not be using them in this example. We fill out the structure <code>VkSubmitInfo</code> with the command buffer we prepared, and call
+                        <code>vkQueueSubmit</code>, along with the fence we created in section 5. After this submission, we wait for the submission to finish by waiting on the fence using <code>vkWaitForFences</code>.
+                        Note that we have to reset the fence after this, using <code>vkResetFences</code>, so that it can be used again for future submissions.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkSubmitInfo</div><div> SubmitInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SUBMIT_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .waitSemaphoreCount = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .pWaitSemaphores = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .pWaitDstStageMask = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .commandBufferCount = </div><div class="number">1</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .pCommandBuffers = &amp;CommandBuffer,</div></code>
+                                <span>10.</span><code><div>    .signalSemaphoreCount = </div><div class="number">0</div><div>,</div></code>
+                                <span>11.</span><code><div>    .pSignalSemaphores = </div><div class="keyword">nullptr</div></code>
+                                <span>12.</span><code><div>};</div></code>
+                                <span>13.</span><code></code>
+                                <span>14.</span><code><div>Assert(vkQueueSubmit(GraphicsQueue, </div><div class="number">1</div><div>, &amp;SubmitInfo, Fence) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to submit command buffer"</div><div>);</div></code>
+                                <span>15.</span><code><div>Assert(vkWaitForFences(Device, </div><div class="number">1</div><div>, &amp;Fence, </div><div class="enum">VK_TRUE</div><div>, </div><div class="number">1</div><div> * </div><div class="enum">NANOSECONDS_PER_SECOND</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Fence timeout"</div><div>);</div></code>
+                                <span>16.</span><code><div>Assert(vkResetFences(Device, </div><div class="number">1</div><div>, &amp;Fence) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not reset fence"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>11 - Create the vertex/fragment shaders:</b>
+                    </div>
+                    <p>
+                        The next step is to create the vertex and fragment shaders for rendering our triangle.
+                    </p>
+                    <br>
+                    <p>
+                        The vertex shader will be run once per vertex of our triangle. We will take in the vertex position from the vertex buffer in index 0, and the color in index 1. Remember these indices, they will be important for the next section where
+                        we will create the graphics pipeline. The vertex's position will to be written to <code>gl_Position</code>, which tells Vulkan the coordinate of the vertex, and the color will be sent to
+                        the fragment shader at index 0.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code>#version 450</code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code>layout(location = 0) in vec3 VertexPosition;</code>
+                                <span> 4.</span><code>layout(location = 1) in vec3 VertexColor;</code>
+                                <span> 5.</span><code></code>
+                                <span> 6.</span><code>layout(location = 0) out vec3 ColorOut;</code>
+                                <span> 7.</span><code></code>
+                                <span> 8.</span><code>void main()</code>
+                                <span> 9.</span><code>{</code>
+                                <span>10.</span><code>    gl_Position = vec4(VertexPosition, 1.0);</code>
+                                <span>11.</span><code></code>
+                                <span>12.</span><code>    ColorOut = VertexColor;</code>
+                                <span>13.</span><code>}</code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The fragment shader will also be simple - it will simply output the color it receives from the vertex shader. Vulkan will automatically interpolate the colors between the
+                        vertices.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code>#version 450</code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code>layout(location = 0) in vec3 ColorIn;</code>
+                                <span> 4.</span><code></code>
+                                <span> 5.</span><code>layout(location = 0) out vec4 FragColor;</code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code>void main()</code>
+                                <span> 8.</span><code>{</code>
+                                <span> 9.</span><code>    FragColor = vec4(ColorIn, 1.0);</code>
+                                <span>10.</span><code>}</code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After the shaders are implemented, we have to compile them into an intermediate representation for Vulkan. This can be done using the <code>glslangvalidator</code>
+                        compiler. There are two options - we can either output a binary file which we can read/load at runtime, or we can produce header files which we can simply include
+                        into our source code and bake the intermediate code into our application. We will be going with the second approach.
+                        <div class="code-box">
+                            <pre>
+                                <code>glslangvalidator -V --vn VertexShader -S vert VertexShader.vert.glsl -o VertexShader.vert.h</code>
+                                <code>glslangvalidator -V --vn FragmentShader -S frag FragmentShader.frag.glsl -o FragmentShader.frag.h</code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Flag descriptions:
+                        <ul>
+                            <li><code>-V</code>: tells the compiler to generate a SPIR-V binary</li>
+                            <li><code>--vn</code>: tells the compiler what we want to name the intermediate representation array's variable in the header file</li>
+                            <li><code>-S</code>: tells the compiler the type of shader this is (<code>vert</code> for the vertex shader and <code>frag</code> for the fragment shader)</li>
+                            <li><code>-o</code>: tells the compiler the generated header file's name</li>
+                        </ul>
+                    </p>
+                    <br>
+                    <p>
+                        Once the intermediate representation headers are generated, we can include those headers and create <code>VkShaderModule</code> objects for each shader. This will be required for the
+                        graphics pipeline in the next section.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkShaderModuleCreateInfo</div><div> VertexShaderInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .codeSize = </div><div class="keyword">sizeof</div><div>(VertexShader),</div></code>
+                                <span> 7.</span><code><div>    .pCode = VertexShader</div></code>
+                                <span> 8.</span><code><div>};</div></code>
+                                <span> 9.</span><code></code>
+                                <span>10.</span><code><div class="datatype">VkShaderModuleCreateInfo</div><div> FragmentShaderInfo =</div></code>
+                                <span>11.</span><code><div>{</div></code>
+                                <span>12.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO</div><div>,</div></code>
+                                <span>13.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>14.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>15.</span><code><div>    .codeSize = </div><div class="keyword">sizeof</div><div>(FragmentShader),</div></code>
+                                <span>16.</span><code><div>    .pCode = FragmentShader</div></code>
+                                <span>17.</span><code><div>};</div></code>
+                                <span>18.</span><code></code>
+                                <span>19.</span><code><div class="datatype">VkShaderModule</div><div> VertexShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span>20.</span><code><div class="datatype">VkShaderModule</div><div> FragmentShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span>21.</span><code></code>
+                                <span>22.</span><code><div>Assert(vkCreateShaderModule(Device, &amp;VertexShaderInfo, </div><div class="keyword">nullptr</div><div>, &amp;VertexShaderModule) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create vertex shader module"</div><div>);</div></code>
+                                <span>23.</span><code><div>Assert(vkCreateShaderModule(Device, &amp;FragmentShaderInfo, </div><div class="keyword">nullptr</div><div>, &amp;FragmentShaderModule) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create fragment shader module"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>12 - Create the graphics pipeline:</b>
+                    </div>
+                    <p>
+                        Once we have the shaders ready, we have to create the graphics pipeline. The graphics pipeline is a very important object which controls many rendering
+                        options/parameters and contains the shaders that will be used for rendering. Before creating the graphics pipeline, we have to create a
+                        pipeline layout and also configure several required structures.
+                    </p>
+                    <br>
+                    <p>
+                        The <code>VkPipelineLayout</code> tells Vulkan the descriptor sets and push constants which will be able to this graphics pipeline. In this example,
+                        we don't have any of those, so we simply create the layout.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineLayoutCreateInfo</div><div> PipelineLayoutInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .setLayoutCount = </div><div class="number">0</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .pSetLayouts = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .pushConstantRangeCount = </div><div class="number">0</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .pPushConstantRanges = </div><div class="keyword">nullptr</div></code>
+                                <span>10.</span><code><div>};</div></code>
+                                <span>11.</span><code></code>
+                                <span>12.</span><code><div>Assert(vkCreatePipelineLayout(Device, &amp;PipelineLayoutInfo, </div><div class="keyword">nullptr</div><div>, &amp;PipelineLayout) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create pipeline layout"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The first structure we have to configure is <code>VkPipelineShaderStageCreateInfo</code>. This structure will tell Vulkan the shaders this pipeline will use for rendering. We have to fill out two of these,
+                        one for the vertex shader and one for the fragment shader. The graphics pipeline creation structure will take in an array of this structure, so we define it as an array of size two.
+                        The shader modules we created in the previous section will be used in the <code>module</code> field; and the <code>pName</code> field tells Vulkan the entry point/function
+                        of the shader, which is <code>main</code> in both of our shader implementations.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineShaderStageCreateInfo</div><div> PipelineShaderStageInfo[</div><div class="number">2</div><div>] =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    {</div></code>
+                                <span> 4.</span><code><div>        .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO</div><div>,</div></code>
+                                <span> 5.</span><code><div>        .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 6.</span><code><div>        .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 7.</span><code><div>        .stage = </div><div class="enum">VK_SHADER_STAGE_VERTEX_BIT</div><div>,</div></code>
+                                <span> 8.</span><code><div>        .module = VertexShaderModule,</div></code>
+                                <span> 9.</span><code><div>        .pName = </div><div class="string">"main"</div><div>,</div></code>
+                                <span>10.</span><code><div>        .pSpecializationInfo = </div><div class="keyword">nullptr</div></code>
+                                <span>11.</span><code><div>    },</div></code>
+                                <span>12.</span><code><div>    {</div></code>
+                                <span>13.</span><code><div>        .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO</div><div>,</div></code>
+                                <span>14.</span><code><div>        .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>15.</span><code><div>        .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>16.</span><code><div>        .stage = </div><div class="enum">VK_SHADER_STAGE_FRAGMENT_BIT</div><div>,</div></code>
+                                <span>17.</span><code><div>        .module = FragmentShaderModule,</div></code>
+                                <span>18.</span><code><div>        .pName = </div><div class="string">"main"</div><div>,</div></code>
+                                <span>19.</span><code><div>        .pSpecializationInfo = </div><div class="keyword">nullptr</div></code>
+                                <span>20.</span><code><div>    }</div></code>
+                                <span>21.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Next is the <code>VkPipelineVertexInputStateCreateInfo</code> structure, which describes the vertex buffers and data format to Vulkan. This structure takes in an array of two other structures -
+                        <code>VkVertexInputBindingDescription</code> and <code>VkVertexInputAttributeDescription</code>.
+                        The <code>VkVertexInputBindingDescription</code> structure describes each vertex buffer which will be bound to this pipeline for rendering. We have all our data
+                        in one buffer, so we only create one. The <code>stride</code> tells Vulkan how far apart each vertex's data is; in our case its the size of a vertex. The <code>inputRate</code> specifies whether
+                        the vertex data is per vertex or per instance. The other structure, <code>VkVertexInputAttributeDescription</code>, will be used to describe each vertex attribute this pipeline will work with.
+                        The <code>location</code> field tells Vulkan the index of the attribute, recall the vertex shader indices from the previous section. The <code>binding</code> field specifies
+                        which vertex buffer, from the <code>VkVertexInputBindingDescription</code> array, it will get this attribute from. The <code>format</code> just tells Vulkan the format of this attribute,
+                        i.e. the number of components, the number of bits per component, etc. Lastly the offset is used to determine where the first attribute is located in the buffer.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkVertexInputBindingDescription</div><div> Bindings[] =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    {</div></code>
+                                <span> 4.</span><code><div>        .binding = </div><div class="number">0</div><div>,</div></code>
+                                <span> 5.</span><code><div>        .stride = </div><div class="keyword">sizeof</div><div>(Vertex),</div></code>
+                                <span> 6.</span><code><div>        .inputRate = </div><div class="enum">VK_VERTEX_INPUT_RATE_VERTEX</div></code>
+                                <span> 7.</span><code><div>    }</div></code>
+                                <span> 8.</span><code><div>};</div></code>
+                                <span> 9.</span><code></code>
+                                <span>10.</span><code><div class="datatype">VkVertexInputAttributeDescription</div><div> Attributes[] =</div></code>
+                                <span>11.</span><code><div>{</div></code>
+                                <span>12.</span><code><div>    {</div></code>
+                                <span>13.</span><code><div>        .location = </div><div class="number">0</div><div>,</div></code>
+                                <span>14.</span><code><div>        .binding = </div><div class="number">0</div><div>,</div></code>
+                                <span>15.</span><code><div>        .format = </div><div class="enum">VK_FORMAT_R32G32B32_SFLOAT</div><div>,</div></code>
+                                <span>16.</span><code><div>        .offset = offsetof(Vertex, position)</div></code>
+                                <span>17.</span><code><div>    },</div></code>
+                                <span>18.</span><code><div>    {</div></code>
+                                <span>19.</span><code><div>        .location = </div><div class="number">1</div><div>,</div></code>
+                                <span>20.</span><code><div>        .binding = </div><div class="number">0</div><div>,</div></code>
+                                <span>21.</span><code><div>        .format = </div><div class="enum">VK_FORMAT_R32G32B32_SFLOAT</div><div>,</div></code>
+                                <span>22.</span><code><div>        .offset = offsetof(Vertex, color)</div></code>
+                                <span>23.</span><code><div>    }</div></code>
+                                <span>24.</span><code><div>};</div></code>
+                                <span>25.</span><code></code>
+                                <span>26.</span><code><div class="datatype">VkPipelineVertexInputStateCreateInfo</div><div> PipelineVertexInputStateInfo =</div></code>
+                                <span>27.</span><code><div>{</div></code>
+                                <span>28.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span>29.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>30.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>31.</span><code><div>    .vertexBindingDescriptionCount = </div><div class="keyword">sizeof</div><div>(Bindings) / </div><div class="keyword">sizeof</div><div>(VkVertexInputBindingDescription),</div></code>
+                                <span>32.</span><code><div>    .pVertexBindingDescriptions = Bindings,</div></code>
+                                <span>33.</span><code><div>    .vertexAttributeDescriptionCount = </div><div class="keyword">sizeof</div><div>(Attributes) / </div><div class="keyword">sizeof</div><div>(VkVertexInputAttributeDescription),</div></code>
+                                <span>34.</span><code><div>    .pVertexAttributeDescriptions = Attributes</div></code>
+                                <span>35.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The next required structure is <code>VkPipelineInputAssemblyStateCreateInfo</code>, which tells the Vulkan how to assemble the
+                        primitives for rendering. We want our vertex data to be assembled into triangles, so we use <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="datatype">VkPipelineInputAssemblyStateCreateInfo</div><div> PipelineInputAssemblyStateInfo =</div></code>
+                                <span>2.</span><code><div>{</div></code>
+                                <span>3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span>4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>6.</span><code><div>    .topology = </div><div class="enum">VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST</div><div>,</div></code>
+                                <span>7.</span><code><div>    .primitiveRestartEnable = </div><div class="enum">VK_FALSE</div></code>
+                                <span>8.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Next is the <code>VkPipelineViewportStateCreateInfo</code> structure which tells Vulkan the rendering viewport and the scissor test rectangle.
+                        Vulkan will render into the area given by the viewport rectangle, and discard pixels outside of the scissor test rectangle. For this program Vulkan can render to the entire screen, so we construct both the viewport and scissor test rectangle
+                        to cover the entire screen.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkViewport</div><div> Viewport =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .x = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .y = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .width = </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">float</div><div>&gt;(</div><div class="enum">WIDTH</div><div>),</div></code>
+                                <span> 6.</span><code><div>    .height = </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">float</div><div>&gt;(</div><div class="enum">HEIGHT</div><div>),</div></code>
+                                <span> 7.</span><code><div>    .minDepth = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .maxDepth = </div><div class="number">1.0f</div></code>
+                                <span> 9.</span><code><div>};</div></code>
+                                <span>10.</span><code></code>
+                                <span>11.</span><code><div class="datatype">VkRect2D</div><div> Scissor =</div></code>
+                                <span>12.</span><code><div>{</div></code>
+                                <span>13.</span><code><div>    .offset =</div></code>
+                                <span>14.</span><code><div>    {</div></code>
+                                <span>15.</span><code><div>        .x = </div><div class="number">0</div><div>,</div></code>
+                                <span>16.</span><code><div>        .y = </div><div class="number">0</div></code>
+                                <span>17.</span><code><div>    },</div></code>
+                                <span>18.</span><code><div>    .extent =</div></code>
+                                <span>19.</span><code><div>    {</div></code>
+                                <span>20.</span><code><div>        .width = </div><div class="enum">WIDTH</div><div>,</div></code>
+                                <span>21.</span><code><div>        .height = </div><div class="enum">HEIGHT</div></code>
+                                <span>22.</span><code><div>    }</div></code>
+                                <span>23.</span><code><div>};</div></code>
+                                <span>24.</span><code></code>
+                                <span>25.</span><code><div class="datatype">VkPipelineViewportStateCreateInfo</div><div> PipelineViewportStateInfo =</div></code>
+                                <span>26.</span><code><div>{</div></code>
+                                <span>27.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span>28.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>29.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>30.</span><code><div>    .viewportCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>31.</span><code><div>    .pViewports = &amp;Viewport,</div></code>
+                                <span>32.</span><code><div>    .scissorCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>33.</span><code><div>    .pScissors = &amp;Scissor</div></code>
+                                <span>34.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Next is the <code>VkPipelineRasterizationStateCreateInfo</code> structure which controls rasterization options. We are interested in
+                        <code>polygonMode</code>, <code>cullMode</code>, and <code>frontFace</code>. The <code>polygonMode</code> field controls how the rasterizer will render
+                        polygons, in our case we want it to fill them in so we use <code>VK_POLYGON_MODE_FILL</code>. The <code>frontFace</code> field tells the rasterizer
+                        which triangles are considered facing "front". We use <code>VK_FRONT_FACE_COUNTER_CLOCKWISE</code>, which means that triangles with their vertices ordered in
+                        a counter clockwise order will be considered to be facing the front. This is important because we can use an important optimization called
+                        back face culling, which will skip rendering triangles facing away from the viewer. Back face culling can be enabled by setting the <code>cullMode</code>
+                        to <code>VK_CULL_MODE_BACK_BIT</code>. This won't affect this program since our triangle always faces in front, but eventually when we start rendering models
+                        it will matter. The rest of the options will be left to the defaults/zero.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineRasterizationStateCreateInfo</div><div> PipelineRasterizationStateInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .depthClampEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .rasterizerDiscardEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .polygonMode = </div><div class="enum">VK_POLYGON_MODE_FILL</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .cullMode = </div><div class="enum">VK_CULL_MODE_BACK_BIT</div><div>,</div></code>
+                                <span>10.</span><code><div>    .frontFace = </div><div class="enum">VK_FRONT_FACE_COUNTER_CLOCKWISE</div><div>,</div></code>
+                                <span>11.</span><code><div>    .depthBiasEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span>12.</span><code><div>    .depthBiasConstantFactor = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span>13.</span><code><div>    .depthBiasClamp = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span>14.</span><code><div>    .depthBiasSlopeFactor = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span>15.</span><code><div>    .lineWidth = </div><div class="number">1.0f</div></code>
+                                <span>16.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Next is the <code>VkPipelineMultisampleStateCreateInfo</code> structure. This structure controls the multisampling options. In this program
+                        we do not need to change anything, we just leave it with the defaults.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineMultisampleStateCreateInfo</div><div> PipelineMultisampleStateInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .rasterizationSamples = </div><div class="enum">VK_SAMPLE_COUNT_1_BIT</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .sampleShadingEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .minSampleShading = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .pSampleMask = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>10.</span><code><div>    .alphaToCoverageEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span>11.</span><code><div>    .alphaToOneEnable = </div><div class="enum">VK_FALSE</div></code>
+                                <span>12.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The next structure is <code>VkPipelineColorBlendStateCreateInfo</code> which controls the color blending options. This structure requires an array of <code>VkPipelineColorBlendAttachmentState</code> structures,
+                        and the length of the array should match the number of color attachments which this pipeline will render to. In our case we are only rendering to the framebuffer, so our array will be of size one.
+                        We are not using any blending in this program, so we will leave everything default, except for the <code>colorWriteMask</code> field of the <code>VkPipelineColorBlendAttachmentState</code> structure, because
+                        that controls the components that can be written to the color attachment.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineColorBlendAttachmentState</div><div> PipelineColorBlendAttachmentState =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .blendEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .srcColorBlendFactor = </div><div class="enum">VK_BLEND_FACTOR_ZERO</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .dstColorBlendFactor = </div><div class="enum">VK_BLEND_FACTOR_ZERO</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .colorBlendOp = </div><div class="enum">VK_BLEND_OP_ADD</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .srcAlphaBlendFactor = </div><div class="enum">VK_BLEND_FACTOR_ZERO</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .dstAlphaBlendFactor = </div><div class="enum">VK_BLEND_FACTOR_ZERO</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .alphaBlendOp = </div><div class="enum">VK_BLEND_OP_ADD</div><div>,</div></code>
+                                <span>10.</span><code><div>    .colorWriteMask = </div><div class="enum">VK_COLOR_COMPONENT_R_BIT</div><div> | </div><div class="enum">VK_COLOR_COMPONENT_G_BIT</div><div> | </div><div class="enum">VK_COLOR_COMPONENT_B_BIT</div><div> | </div><div class="enum">VK_COLOR_COMPONENT_A_BIT</div></code>
+                                <span>11.</span><code><div>};</div></code>
+                                <span>12.</span><code></code>
+                                <span>13.</span><code><div class="datatype">VkPipelineColorBlendStateCreateInfo</div><div> PipelineColorBlendStateInfo =</div></code>
+                                <span>14.</span><code><div>{</div></code>
+                                <span>15.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span>16.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>17.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>18.</span><code><div>    .logicOpEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span>19.</span><code><div>    .logicOp = </div><div class="enum">VK_LOGIC_OP_CLEAR</div><div>,</div></code>
+                                <span>20.</span><code><div>    .attachmentCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>21.</span><code><div>    .pAttachments = &amp;PipelineColorBlendAttachmentState,</div></code>
+                                <span>22.</span><code><div>    .blendConstants = { </div><div class="number">0.0f</div><div>, </div><div class="number">0.0f</div><div>, </div><div class="number">0.0f</div><div>, </div><div class="number">0.0f</div><div> }</div></code>
+                                <span>23.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The next structure is <code>VkPipelineDepthStencilStateCreateInfo</code>, which controls the depth and stencil test options. We are not using the depth or stencil test in this program,
+                        so we leave all the parameters as default.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineDepthStencilStateCreateInfo</div><div> DepthStencilInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .depthTestEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .depthWriteEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .depthCompareOp = </div><div class="enum">VK_COMPARE_OP_NEVER</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .depthBoundsTestEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span>10.</span><code><div>    .stencilTestEnable = </div><div class="enum">VK_FALSE</div><div>,</div></code>
+                                <span>11.</span><code><div>    .front =</div></code>
+                                <span>12.</span><code><div>    {</div></code>
+                                <span>13.</span><code><div>        .failOp = </div><div class="enum">VK_STENCIL_OP_KEEP</div><div>,</div></code>
+                                <span>14.</span><code><div>        .passOp = </div><div class="enum">VK_STENCIL_OP_KEEP</div><div>,</div></code>
+                                <span>15.</span><code><div>        .depthFailOp = </div><div class="enum">VK_STENCIL_OP_KEEP</div><div>,</div></code>
+                                <span>16.</span><code><div>        .compareOp = </div><div class="enum">VK_COMPARE_OP_NEVER</div><div>,</div></code>
+                                <span>17.</span><code><div>        .compareMask = </div><div class="number">0</div><div>,</div></code>
+                                <span>18.</span><code><div>        .writeMask = </div><div class="number">0</div><div>,</div></code>
+                                <span>19.</span><code><div>        .reference = </div><div class="number">0</div></code>
+                                <span>20.</span><code><div>    },</div></code>
+                                <span>21.</span><code><div>    .back =</div></code>
+                                <span>22.</span><code><div>    {</div></code>
+                                <span>23.</span><code><div>        .failOp = </div><div class="enum">VK_STENCIL_OP_KEEP</div><div>,</div></code>
+                                <span>24.</span><code><div>        .passOp = </div><div class="enum">VK_STENCIL_OP_KEEP</div><div>,</div></code>
+                                <span>25.</span><code><div>        .depthFailOp = </div><div class="enum">VK_STENCIL_OP_KEEP</div><div>,</div></code>
+                                <span>26.</span><code><div>        .compareOp = </div><div class="enum">VK_COMPARE_OP_NEVER</div><div>,</div></code>
+                                <span>27.</span><code><div>        .compareMask = </div><div class="number">0</div><div>,</div></code>
+                                <span>28.</span><code><div>        .writeMask = </div><div class="number">0</div><div>,</div></code>
+                                <span>29.</span><code><div>        .reference = </div><div class="number">0</div></code>
+                                <span>30.</span><code><div>    },</div></code>
+                                <span>31.</span><code><div>    .minDepthBounds = </div><div class="number">0.0f</div><div>,</div></code>
+                                <span>32.</span><code><div>    .maxDepthBounds = </div><div class="number">0.0f</div></code>
+                                <span>33.</span><code><div>};</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Once we have all these structures prepared, we can create the graphics pipeline.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkGraphicsPipelineCreateInfo</div><div> GraphicsPipelineInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .stageCount = </div><div class="number">2</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .pStages = PipelineShaderStageInfo,</div></code>
+                                <span> 8.</span><code><div>    .pVertexInputState = &amp;PipelineVertexInputStateInfo,</div></code>
+                                <span> 9.</span><code><div>    .pInputAssemblyState = &amp;PipelineInputAssemblyStateInfo,</div></code>
+                                <span>10.</span><code><div>    .pTessellationState = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>11.</span><code><div>    .pViewportState = &amp;PipelineViewportStateInfo,</div></code>
+                                <span>12.</span><code><div>    .pRasterizationState = &amp;PipelineRasterizationStateInfo,</div></code>
+                                <span>13.</span><code><div>    .pMultisampleState = &amp;PipelineMultisampleStateInfo,</div></code>
+                                <span>14.</span><code><div>    .pDepthStencilState = &amp;DepthStencilInfo,</div></code>
+                                <span>15.</span><code><div>    .pColorBlendState = &amp;PipelineColorBlendStateInfo,</div></code>
+                                <span>16.</span><code><div>    .pDynamicState = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>17.</span><code><div>    .layout = PipelineLayout,</div></code>
+                                <span>18.</span><code><div>    .renderPass = RenderPass,</div></code>
+                                <span>19.</span><code><div>    .subpass = </div><div class="number">0</div><div>,</div></code>
+                                <span>20.</span><code><div>    .basePipelineHandle = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>21.</span><code><div>    .basePipelineIndex = &minus;</div><div class="number">1</div></code>
+                                <span>22.</span><code><div>};</div></code>
+                                <span>23.</span><code></code>
+                                <span>24.</span><code><div>Assert(vkCreateGraphicsPipelines(Device, </div><div class="keyword">nullptr</div><div>, </div><div class="number">1</div><div>, &amp;GraphicsPipelineInfo, </div><div class="keyword">nullptr</div><div>, &amp;GraphicsPipeline) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to create graphics pipeline"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Once the graphics pipeline is created, we can free the shader modules.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div>if (VertexShaderModule != </div><div class="keyword">nullptr</div><div>)</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    vkDestroyShaderModule(Device, VertexShaderModule, </div><div class="keyword">nullptr</div><div>);</div></code>
+                                <span> 4.</span><code><div>    VertexShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span> 5.</span><code><div>}</div></code>
+                                <span> 6.</span><code></code>
+                                <span> 7.</span><code><div>if (FragmentShaderModule != </div><div class="keyword">nullptr</div><div>)</div></code>
+                                <span> 8.</span><code><div>{</div></code>
+                                <span> 9.</span><code><div>    vkDestroyShaderModule(Device, FragmentShaderModule, </div><div class="keyword">nullptr</div><div>);</div></code>
+                                <span>10.</span><code><div>    FragmentShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span>11.</span><code><div>}</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>13 - Render the triangle:</b>
+                    </div>
+                    <p>
+                        Once we have the vertex buffer and graphics pipeline set up, we can implement the actual rendering logic! The main loop will call this code every frame to render the triangle,
+                        until the user closes the program.
+                    </p>
+                    <br>
+                    <p>
+                        The first step is to get the next swapchain image using <code>vkAcquireNextImageKHR</code>. This will give us the index of the next available image. We use the <code>AcquireSemaphore</code>
+                        from section 7 here. When the image is available/ready to be rendered to, this semaphore will be signalled. When we submit the work to the graphics queue, the graphics queue will wait for
+                        this semaphore to become signalled before beginning rendering.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="keyword">uint32_t</div><div> SwapchainIndex = </div><div class="number">0</div><div>;</div></code>
+                                <span>2.</span><code><div>Assert(vkAcquireNextImageKHR(Device, Swapchain, </div><div class="enum">UINT64_MAX</div><div>, AcquireSemaphore, </div><div class="keyword">nullptr</div><div>, &amp;SwapchainIndex) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get next surface image"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After we know which framebuffer/swapchain image we will be rendering to, we begin preparing the command buffer which will contain all our rendering commands.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="datatype">VkCommandBufferBeginInfo</div><div> CommandBufferBeginInfo =</div></code>
+                                <span>2.</span><code><div>{</div></code>
+                                <span>3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO</div><div>,</div></code>
+                                <span>4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>5.</span><code><div>    .flags = </div><div class="enum">VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</div><div>,</div></code>
+                                <span>6.</span><code><div>    .pInheritanceInfo = </div><div class="keyword">nullptr</div></code>
+                                <span>7.</span><code><div>};</div></code>
+                                <span>8.</span><code></code>
+                                <span>9.</span><code><div>Assert(vkBeginCommandBuffer(CommandBuffer, &amp;CommandBufferBeginInfo) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to initialize command buffer"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The first command we insert into the command buffer is to set up the render pass. This will prepare the framebuffer which we are rendering to.
+                        Here we use the render pass object we created earlier and the current framebuffer, and we also specify the rendering rectangle (the whole screen)
+                        and the clear color (black in this case).
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="comment">// Color buffer clear color</div></code>
+                                <span> 2.</span><code><div class="datatype">VkClearValue</div><div> ClearColor;</div></code>
+                                <span> 3.</span><code><div>ClearColor.color.float32[</div><div class="number">0</div><div>] = </div><div class="number">0.00f</div><div>;</div></code>
+                                <span> 4.</span><code><div>ClearColor.color.float32[</div><div class="number">1</div><div>] = </div><div class="number">0.00f</div><div>;</div></code>
+                                <span> 5.</span><code><div>ClearColor.color.float32[</div><div class="number">2</div><div>] = </div><div class="number">0.45f</div><div>;</div></code>
+                                <span> 6.</span><code><div>ClearColor.color.float32[</div><div class="number">3</div><div>] = </div><div class="number">0.00f</div><div>;</div></code>
+                                <span> 7.</span><code></code>
+                                <span> 8.</span><code><div class="datatype">VkRect2D</div><div> RenderArea =</div></code>
+                                <span> 9.</span><code><div>{</div></code>
+                                <span>10.</span><code><div>    .offset =</div></code>
+                                <span>11.</span><code><div>    {</div></code>
+                                <span>12.</span><code><div>        .x = </div><div class="number">0</div><div>,</div></code>
+                                <span>13.</span><code><div>        .y = </div><div class="number">0</div></code>
+                                <span>14.</span><code><div>    },</div></code>
+                                <span>15.</span><code><div>    .extent =</div></code>
+                                <span>16.</span><code><div>    {</div></code>
+                                <span>17.</span><code><div>        .width = </div><div class="enum">WIDTH</div><div>,</div></code>
+                                <span>18.</span><code><div>        .height = </div><div class="enum">HEIGHT</div></code>
+                                <span>19.</span><code><div>    }</div></code>
+                                <span>20.</span><code><div>};</div></code>
+                                <span>21.</span><code></code>
+                                <span>22.</span><code><div class="datatype">VkRenderPassBeginInfo</div><div> RenderPassBeginInfo =</div></code>
+                                <span>23.</span><code><div>{</div></code>
+                                <span>24.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO</div><div>,</div></code>
+                                <span>25.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>26.</span><code><div>    .renderPass = RenderPass,</div></code>
+                                <span>27.</span><code><div>    .framebuffer = Framebuffers[SwapchainIndex],</div></code>
+                                <span>28.</span><code><div>    .renderArea = RenderArea,</div></code>
+                                <span>29.</span><code><div>    .clearValueCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>30.</span><code><div>    .pClearValues = &amp;ClearColor</div></code>
+                                <span>31.</span><code><div>};</div></code>
+                                <span>32.</span><code></code>
+                                <span>33.</span><code><div>Assert(vkBeginCommandBuffer(CommandBuffer, &amp;CommandBufferBeginInfo) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to initialize command buffer"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After the framebuffer is prepared, we bind our graphics pipeline.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div>vkCmdBindPipeline(CommandBuffer, </div><div class="enum">VK_PIPELINE_BIND_POINT_GRAPHICS</div><div>, GraphicsPipeline);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Next we bind the vertex buffer, and tell Vulkan to render the triangle.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div class="keyword">uint64_t</div><div> pOffsets[</div><div class="number">1</div><div>] = { </div><div class="number">0</div><div> };</div></code>
+                                <span>2.</span><code><div class="datatype">VkBuffer</div><div> pBuffers[</div><div class="number">1</div><div>] = { VertexBuffer };</div></code>
+                                <span>3.</span><code><div class="keyword">const</div><div> </div><div class="keyword">uint32_t</div><div> VertexCount = </div><div class="keyword">sizeof</div><div>(TriangleVertices) / </div><div class="keyword">sizeof</div><div>(Vertex);</div></code>
+                                <span>4.</span><code></code>
+                                <span>5.</span><code><div>vkCmdBindVertexBuffers(CommandBuffer, </div><div class="number">0</div><div>, </div><div class="number">1</div><div>, pBuffers, pOffsets);</div></code>
+                                <span>6.</span><code><div>vkCmdDraw(CommandBuffer, VertexCount, </div><div class="number">1</div><div>, </div><div class="number">0</div><div>, </div><div class="number">0</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        After we are done with our rendering commands, we can end the render pass, and finalize the command buffer.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div>vkCmdEndRenderPass(CommandBuffer);</div></code>
+                                <span>2.</span><code></code>
+                                <span>3.</span><code><div>Assert(vkEndCommandBuffer(CommandBuffer) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to finalize command buffer"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        Once the command buffer is populated, we have to submit it to our graphics queue. The <code>VkSubmitInfo</code> structure will specify the command buffer we are submitting, and it
+                        will also specify the semaphores which the queue should wait on before beginning rendering. As mentioned before, we want the graphics queue to wait for the framebuffer to become
+                        available before it starts running, so we use our <code>AcquireSemaphore</code> from earlier here. We want the graphics queue to wait at the top of the pipe, meaning before any of the shader stages begin, so we use <code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code>
+                        as the waiting stage. Note that we also give a semaphore to signal once the command buffer is finished executing, this will be useful to know when the image can be presented. For this we will use our second semaphore, the <code>ReleaseSemaphore</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPipelineStageFlags</div><div> WaitDstStageMasks[] = { </div><div class="enum">VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</div><div> };</div></code>
+                                <span> 2.</span><code></code>
+                                <span> 3.</span><code><div class="datatype">VkSubmitInfo</div><div> SubmissionInfo =</div></code>
+                                <span> 4.</span><code><div>{</div></code>
+                                <span> 5.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SUBMIT_INFO</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 7.</span><code><div>    .waitSemaphoreCount = </div><div class="number">1</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .pWaitSemaphores = &amp;AcquireSemaphore,</div></code>
+                                <span> 9.</span><code><div>    .pWaitDstStageMask = WaitDstStageMasks,</div></code>
+                                <span>10.</span><code><div>    .commandBufferCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>11.</span><code><div>    .pCommandBuffers = &amp;CommandBuffer,</div></code>
+                                <span>12.</span><code><div>    .signalSemaphoreCount = </div><div class="number">1</div><div>,</div></code>
+                                <span>13.</span><code><div>    .pSignalSemaphores = &amp;ReleaseSemaphore</div></code>
+                                <span>14.</span><code><div>};</div></code>
+                                <span>15.</span><code></code>
+                                <span>16.</span><code><div>Assert(vkQueueSubmit(GraphicsQueue, </div><div class="number">1</div><div>, &amp;SubmissionInfo, Fence) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to submit command buffer"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        At this point, the command buffer has been submitted to the queue, and we can ask Vulkan to present the new image when its available. The <code>ReleaseSemaphore</code> will be signalled
+                        once the rendering operations finish. We will out the structure <code>VkPresentInfoKHR</code> with the swapchain, current swapchain index, and the <code>ReleaseSemaphore</code>, and
+                        call <code>vkQueuePresentKHR</code>.
+                        <div class="code-box">
+                            <pre>
+                                <span> 1.</span><code><div class="datatype">VkPresentInfoKHR</div><div> PresentInfo =</div></code>
+                                <span> 2.</span><code><div>{</div></code>
+                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_PRESENT_INFO_KHR</div><div>,</div></code>
+                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span> 5.</span><code><div>    .waitSemaphoreCount = </div><div class="number">1</div><div>,</div></code>
+                                <span> 6.</span><code><div>    .pWaitSemaphores = &amp;ReleaseSemaphore,</div></code>
+                                <span> 7.</span><code><div>    .swapchainCount = </div><div class="number">1</div><div>,</div></code>
+                                <span> 8.</span><code><div>    .pSwapchains = &amp;Swapchain,</div></code>
+                                <span> 9.</span><code><div>    .pImageIndices = &amp;SwapchainIndex,</div></code>
+                                <span>10.</span><code><div>    .pResults = </div><div class="keyword">nullptr</div></code>
+                                <span>11.</span><code><div>};</div></code>
+                                <span>12.</span><code></code>
+                                <span>13.</span><code><div>Assert(vkQueuePresentKHR(GraphicsQueue, &amp;PresentInfo) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to present"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <p>
+                        The semaphores we used above will insert the waits into the command buffer and make the GPU queue wait, but we also need to make sure the CPU is syncronized.
+                        We will accomplish this by waiting on the <code>vkQueueSubmit</code> fence. Once this fence comes back, it will mean that the previous rendering operation is finished and we can
+                        begin preparing the next frame. Note that this does not mean presentation has also finished, but that is ok because the next frame will be rendered to the next swapchain image.
+                        Even if we fill all the available swapchain images, eventually the queue will have to wait for the next swapchain image to become available, and the wait on the fence will block the CPU.
+                        <div class="code-box">
+                            <pre>
+                                <span>1.</span><code><div>Assert(vkWaitForFences(Device, </div><div class="number">1</div><div>, &amp;Fence, </div><div class="enum">VK_TRUE</div><div>, </div><div class="number">1</div><div> * </div><div class="enum">NANOSECONDS_PER_SECOND</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Fence timeout"</div><div>);</div></code>
+                                <span>2.</span><code><div>Assert(vkResetFences(Device, </div><div class="number">1</div><div>, &amp;Fence) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not reset fence"</div><div>);</div></code>
+                            </pre>
+                        </div>
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>The final result:</b>
+                    </div>
+                    <p>
+                        Once you have made it here, we can finally see our precious triangle :) !
+                    </p>
+                    <br>
+                    <p>
+                        <img style="display: block; width: 40%; margin: 0 auto;" src="hello-triangle.png" alt="Hello Triangle picture">
+                    </p>
+                    <br>
+                    <div class="page-section">
+                        <b>Cleaning up:</b>
+                    </div>
+                    <p>
+                        When the application is closed, we have to free all our allocations/objects otherwise we will leak the memory. For that please see the destructor
+                        <code>~HelloTriangle</code> in the source code.
+                    </p>
+                </div> <!-- Page Content -->
+            </div> <!-- Page -->
+        </div>
+    </body>
+</html>
