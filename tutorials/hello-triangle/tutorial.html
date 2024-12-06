@@ -335,74 +335,68 @@
                                 <span>14.</span><code><div>    </div><div class="keyword">uint64_t</div><div>         LocalHeapSize;</div></code>
                                 <span>15.</span><code><div>};</div></code>
                                 <span>16.</span><code></code>
-                                <span>17.</span><code><div class="keyword">uint32_t</div><div> DeviceCount = </div><div class="number">0</div><div>;</div></code>
-                                <span>18.</span><code><div class="keyword">uint32_t</div><div> QueueCount  = </div><div class="number">0</div><div>;</div></code>
-                                <span>19.</span><code></code>
-                                <span>20.</span><code><div>Assert(vkEnumeratePhysicalDevices(Instance, &amp;DeviceCount, </div><div class="keyword">nullptr</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get number of physical devices"</div><div>);</div></code>
-                                <span>21.</span><code></code>
-                                <span>22.</span><code><div>std::vector&lt;VkPhysicalDevice&gt; DeviceHandles(DeviceCount);</div></code>
-                                <span>23.</span><code><div>Assert(vkEnumeratePhysicalDevices(Instance, &amp;DeviceCount, DeviceHandles.data()) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not get physical devices"</div><div>);</div></code>
-                                <span>24.</span><code></code>
-                                <span>25.</span><code><div>std::vector&lt;PhysicalDeviceInfo&gt; PhysicalDevices;</div></code>
+                                <span>17.</span><code><div class="keyword">uint32_t</div><div> QueueCount  = </div><div class="number">0</div><div>;</div></code>
+                                <span>18.</span><code></code>
+                                <span>19.</span><code><div>std::vector&lt;PhysicalDeviceInfo&gt; PhysicalDevices;</div></code>
+                                <span>20.</span><code></code>
+                                <span>21.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; DeviceHandles.size(); i++)</div></code>
+                                <span>22.</span><code><div>{</div></code>
+                                <span>23.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceFeatures</div><div> DeviceFeatures {};</div></code>
+                                <span>24.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceProperties</div><div> DeviceProperties {};</div></code>
+                                <span>25.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceMemoryProperties</div><div> MemoryProperties {};</div></code>
                                 <span>26.</span><code></code>
-                                <span>27.</span><code><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; DeviceHandles.size(); i++)</div></code>
-                                <span>28.</span><code><div>{</div></code>
-                                <span>29.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceFeatures</div><div> DeviceFeatures {};</div></code>
-                                <span>30.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceProperties</div><div> DeviceProperties {};</div></code>
-                                <span>31.</span><code><div>    </div><div class="datatype">VkPhysicalDeviceMemoryProperties</div><div> MemoryProperties {};</div></code>
+                                <span>27.</span><code><div>    </div><div class="datatype">PhysicalDeviceInfo</div><div> DeviceInfo { DeviceHandles[i], i, </div><div class="number">0</div><div>, </div><div class="enum">UINT32_MAX</div><div>, </div><div class="number">0</div><div>, </div><div class="number">0</div><div> };</div></code>
+                                <span>28.</span><code></code>
+                                <span>29.</span><code><div>    vkGetPhysicalDeviceFeatures(DeviceHandles[i], &amp;DeviceFeatures);</div></code>
+                                <span>30.</span><code><div>    vkGetPhysicalDeviceProperties(DeviceHandles[i], &amp;DeviceProperties);</div></code>
+                                <span>31.</span><code><div>    vkGetPhysicalDeviceMemoryProperties(DeviceHandles[i], &amp;MemoryProperties);</div></code>
                                 <span>32.</span><code></code>
-                                <span>33.</span><code><div>    </div><div class="datatype">PhysicalDeviceInfo</div><div> DeviceInfo { DeviceHandles[i], i, </div><div class="number">0</div><div>, </div><div class="enum">UINT32_MAX</div><div>, </div><div class="number">0</div><div>, </div><div class="number">0</div><div> };</div></code>
+                                <span>33.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, </div><div class="keyword">nullptr</div><div>);</div></code>
                                 <span>34.</span><code></code>
-                                <span>35.</span><code><div>    vkGetPhysicalDeviceFeatures(DeviceHandles[i], &amp;DeviceFeatures);</div></code>
-                                <span>36.</span><code><div>    vkGetPhysicalDeviceProperties(DeviceHandles[i], &amp;DeviceProperties);</div></code>
-                                <span>37.</span><code><div>    vkGetPhysicalDeviceMemoryProperties(DeviceHandles[i], &amp;MemoryProperties);</div></code>
-                                <span>38.</span><code></code>
-                                <span>39.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, </div><div class="keyword">nullptr</div><div>);</div></code>
-                                <span>40.</span><code></code>
-                                <span>41.</span><code><div>    std::vector&lt;VkQueueFamilyProperties&gt; QueueGroups(QueueCount);</div></code>
-                                <span>42.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, QueueGroups.data());</div></code>
+                                <span>35.</span><code><div>    std::vector&lt;VkQueueFamilyProperties&gt; QueueGroups(QueueCount);</div></code>
+                                <span>36.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, QueueGroups.data());</div></code>
+                                <span>37.</span><code></code>
+                                <span>38.</span><code><div>    std::map&lt;VkPhysicalDeviceType, </div><div class="keyword">uint32_t</div><div>&gt;::</div><div class="datatype">const_iterator</div><div> it = PreferenceOrder.find(DeviceProperties.deviceType);</div></code>
+                                <span>39.</span><code><div>    if (it != PreferenceOrder.end())</div></code>
+                                <span>40.</span><code><div>    {</div></code>
+                                <span>41.</span><code><div>        DeviceInfo.PreferenceIndex = it&minus;&gt;second;</div></code>
+                                <span>42.</span><code><div>    }</div></code>
                                 <span>43.</span><code></code>
-                                <span>44.</span><code><div>    std::map&lt;VkPhysicalDeviceType, </div><div class="keyword">uint32_t</div><div>&gt;::</div><div class="datatype">const_iterator</div><div> it = PreferenceOrder.find(DeviceProperties.deviceType);</div></code>
-                                <span>45.</span><code><div>    if (it != PreferenceOrder.end())</div></code>
-                                <span>46.</span><code><div>    {</div></code>
-                                <span>47.</span><code><div>        DeviceInfo.PreferenceIndex = it&minus;&gt;second;</div></code>
-                                <span>48.</span><code><div>    }</div></code>
-                                <span>49.</span><code></code>
-                                <span>50.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; QueueGroups.size(); j++)</div></code>
-                                <span>51.</span><code><div>    {</div></code>
-                                <span>52.</span><code><div>        if (QueueGroups[j].queueFlags &amp; </div><div class="enum">VK_QUEUE_GRAPHICS_BIT</div><div>)</div></code>
-                                <span>53.</span><code><div>        {</div></code>
-                                <span>54.</span><code><div>            DeviceInfo.GraphicsQueueGroup = std::min(DeviceInfo.GraphicsQueueGroup, j); </div><div class="comment">// Pick the first (minimum) available group, we only use 1 gfx queue, so the group does not matter</div></code>
-                                <span>55.</span><code><div>            DeviceInfo.NumGraphicsQueues += QueueGroups[j].queueCount;</div></code>
-                                <span>56.</span><code><div>        }</div></code>
-                                <span>57.</span><code><div>    }</div></code>
-                                <span>58.</span><code></code>
-                                <span>59.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; MemoryProperties.memoryHeapCount; j++)</div></code>
-                                <span>60.</span><code><div>    {</div></code>
-                                <span>61.</span><code><div>        if (MemoryProperties.memoryHeaps[j].flags &amp; </div><div class="enum">VK_MEMORY_HEAP_DEVICE_LOCAL_BIT</div><div>)</div></code>
-                                <span>62.</span><code><div>        {</div></code>
-                                <span>63.</span><code><div>            DeviceInfo.LocalHeapSize += MemoryProperties.memoryHeaps[j].size;</div></code>
-                                <span>64.</span><code><div>        }</div></code>
-                                <span>65.</span><code><div>    }</div></code>
-                                <span>66.</span><code></code>
-                                <span>67.</span><code><div>    PhysicalDevices.push_back(DeviceInfo);</div></code>
-                                <span>68.</span><code><div>}</div></code>
-                                <span>69.</span><code></code>
-                                <span>70.</span><code><div>Assert(PhysicalDevices.size() &gt; </div><div class="number">0</div><div>, </div><div class="string">"Could not find a supported GPU"</div><div>);</div></code>
-                                <span>71.</span><code></code>
-                                <span>72.</span><code><div class="preprocessor">#define COMPARE(a, b) { if ((a) > (b)) { return true; } else if ((a) < (b)) { return false; } }</div></code>
-                                <span>73.</span><code><div>std::sort(PhysicalDevices.begin(), PhysicalDevices.end(), [](</div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; lhs,</div></code>
-                                <span>74.</span><code><div>    </div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; rhs) &minus;&gt; </div><div class="keyword">bool</div><div> {</div></code>
-                                <span>75.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.PreferenceIndex, rhs.PreferenceIndex);</div></code>
-                                <span>76.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.NumGraphicsQueues, rhs.NumGraphicsQueues);</div></code>
-                                <span>77.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.LocalHeapSize, rhs.LocalHeapSize);</div></code>
-                                <span>78.</span><code><div>        </div><div class="datatype">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
-                                <span>79.</span><code><div>    }</div></code>
-                                <span>80.</span><code><div>);</div></code>
-                                <span>81.</span><code><div class="preprocessor">#undef CMP</div></code>
-                                <span>82.</span><code></code>
-                                <span>83.</span><code><div>PhysicalDevice = PhysicalDevices[</div><div class="number">0</div><div>].Handle;</div></code>
-                                <span>84.</span><code><div>GraphicsQueueGroup = PhysicalDevices[</div><div class="number">0</div><div>].GraphicsQueueGroup;</div></code>
+                                <span>44.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; QueueGroups.size(); j++)</div></code>
+                                <span>45.</span><code><div>    {</div></code>
+                                <span>46.</span><code><div>        if (QueueGroups[j].queueFlags &amp; </div><div class="enum">VK_QUEUE_GRAPHICS_BIT</div><div>)</div></code>
+                                <span>47.</span><code><div>        {</div></code>
+                                <span>48.</span><code><div>            DeviceInfo.GraphicsQueueGroup = std::min(DeviceInfo.GraphicsQueueGroup, j); </div><div class="comment">// Pick the first (minimum) available group, we only use 1 gfx queue, so the group does not matter</div></code>
+                                <span>49.</span><code><div>            DeviceInfo.NumGraphicsQueues += QueueGroups[j].queueCount;</div></code>
+                                <span>50.</span><code><div>        }</div></code>
+                                <span>51.</span><code><div>    }</div></code>
+                                <span>52.</span><code></code>
+                                <span>53.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; MemoryProperties.memoryHeapCount; j++)</div></code>
+                                <span>54.</span><code><div>    {</div></code>
+                                <span>55.</span><code><div>        if (MemoryProperties.memoryHeaps[j].flags &amp; </div><div class="enum">VK_MEMORY_HEAP_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>56.</span><code><div>        {</div></code>
+                                <span>57.</span><code><div>            DeviceInfo.LocalHeapSize += MemoryProperties.memoryHeaps[j].size;</div></code>
+                                <span>58.</span><code><div>        }</div></code>
+                                <span>59.</span><code><div>    }</div></code>
+                                <span>60.</span><code></code>
+                                <span>61.</span><code><div>    PhysicalDevices.push_back(DeviceInfo);</div></code>
+                                <span>62.</span><code><div>}</div></code>
+                                <span>63.</span><code></code>
+                                <span>64.</span><code><div>Assert(PhysicalDevices.size() &gt; </div><div class="number">0</div><div>, </div><div class="string">"Could not find a supported GPU"</div><div>);</div></code>
+                                <span>65.</span><code></code>
+                                <span>66.</span><code><div class="preprocessor">#define COMPARE(a, b) { if ((a) > (b)) { return true; } else if ((a) < (b)) { return false; } }</div></code>
+                                <span>67.</span><code><div>std::sort(PhysicalDevices.begin(), PhysicalDevices.end(), [](</div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; lhs,</div></code>
+                                <span>68.</span><code><div>    </div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; rhs) &minus;&gt; </div><div class="keyword">bool</div><div> {</div></code>
+                                <span>69.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.PreferenceIndex, rhs.PreferenceIndex);</div></code>
+                                <span>70.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.NumGraphicsQueues, rhs.NumGraphicsQueues);</div></code>
+                                <span>71.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.LocalHeapSize, rhs.LocalHeapSize);</div></code>
+                                <span>72.</span><code><div>        </div><div class="datatype">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
+                                <span>73.</span><code><div>    }</div></code>
+                                <span>74.</span><code><div>);</div></code>
+                                <span>75.</span><code><div class="preprocessor">#undef CMP</div></code>
+                                <span>76.</span><code></code>
+                                <span>77.</span><code><div>PhysicalDevice = PhysicalDevices[</div><div class="number">0</div><div>].Handle;</div></code>
+                                <span>78.</span><code><div>GraphicsQueueGroup = PhysicalDevices[</div><div class="number">0</div><div>].GraphicsQueueGroup;</div></code>
                             </pre>
                         </div>
                     </p>
