@@ -669,19 +669,21 @@
                                 <span> 6.</span><code><div>            &amp;&amp; ((MemoryProperties.memoryTypes[i].propertyFlags &amp; Flags) == Flags)</div></code>
                                 <span> 7.</span><code><div>            &amp;&amp; (MemoryProperties.memoryTypes[i].heapIndex == HeapIndex))</div></code>
                                 <span> 8.</span><code><div>        {</div></code>
-                                <span> 9.</span><code><div>            </div><div class="datatype">VkMemoryAllocateInfo</div><div> AllocationInfo;</div></code>
-                                <span>10.</span><code><div>            AllocationInfo.sType = </div><div class="enum">VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO</div><div>;</div></code>
-                                <span>11.</span><code><div>            AllocationInfo.pNext = </div><div class="keyword">nullptr</div><div>;</div></code>
-                                <span>12.</span><code><div>            AllocationInfo.allocationSize = rMemoryRequirements.size;</div></code>
-                                <span>13.</span><code><div>            AllocationInfo.memoryTypeIndex = i;</div></code>
-                                <span>14.</span><code></code>
-                                <span>15.</span><code><div>            Assert(vkAllocateMemory(Device, &amp;AllocationInfo, </div><div class="keyword">nullptr</div><div>, &amp;rMemory) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to allocate vertex buffer memory"</div><div>);</div></code>
-                                <span>16.</span><code><div>            </div><div class="keyword">break</div><div>;</div></code>
-                                <span>17.</span><code><div>        }</div></code>
-                                <span>18.</span><code><div>    }</div></code>
-                                <span>19.</span><code></code>
-                                <span>20.</span><code><div>    Assert(rMemory != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Unable to allocate memory"</div><div>);</div></code>
-                                <span>21.</span><code><div>}</div></code>
+                                <span> 9.</span><code><div>            </div><div class="datatype">VkMemoryAllocateInfo</div><div> AllocationInfo =</div></code>
+                                <span>10.</span><code><div>            {</div></code>
+                                <span>11.</span><code><div>                .sType = </div><div class="enum">VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO</div><div>,</div></code>
+                                <span>12.</span><code><div>                .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>13.</span><code><div>                .allocationSize = rMemoryRequirements.size,</div></code>
+                                <span>14.</span><code><div>                .memoryTypeIndex = i</div></code>
+                                <span>15.</span><code><div>            };</div></code>
+                                <span>16.</span><code></code>
+                                <span>17.</span><code><div>            Assert(vkAllocateMemory(Device, &amp;AllocationInfo, </div><div class="keyword">nullptr</div><div>, &amp;rMemory) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to allocate vertex buffer memory"</div><div>);</div></code>
+                                <span>18.</span><code><div>            </div><div class="keyword">break</div><div>;</div></code>
+                                <span>19.</span><code><div>        }</div></code>
+                                <span>20.</span><code><div>    }</div></code>
+                                <span>21.</span><code></code>
+                                <span>22.</span><code><div>    Assert(rMemory != </div><div class="keyword">nullptr</div><div>, </div><div class="string">"Unable to allocate memory"</div><div>);</div></code>
+                                <span>23.</span><code><div>}</div></code>
                             </pre>
                         </div>
                     </p>
