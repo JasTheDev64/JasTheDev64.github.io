@@ -51,7 +51,7 @@
                         <b>1 - Creating the window:</b>
                     </div>
                     <p>
-                        We will use the SDL library to create the window. SDL is a very popular and well supported library, and
+                        We will use the SDL library to create the window. SDL is a very popular/well supported library, and
                         makes it very easy to create windows.
                     </p>
                     <br>
@@ -122,7 +122,7 @@
                     </div>
                     <p>
                         Before creating the Vulkan instance, the application can enumerate all the available layers/extensions available from the API/driver.
-                        These layers/extensions can give optional functionality/features if the application requests it during instance creation.
+                        These layers/extensions can give optional functionality/features if the application requests them during instance creation.
                         We can enumerate the layers and extensions using the <code>vkEnumerateDeviceLayerProperties</code> and <code>vkEnumerateDeviceExtensionProperties</code> functions.
                     </p>
                     <br>
@@ -204,7 +204,7 @@
                     </div>
                     <p>
                         To create the actual instance, we fill out the <code>VkApplicationInfo</code> and <code>VkInstanceCreateInfo</code> structures,
-                        and call <code>vkCreateInstance</code>. The application structure specifies the app and engine names/versions and the required Vulkan API version.
+                        and call <code>vkCreateInstance</code>. The application structure specifies the app and engine names/versions, and the required Vulkan API version.
                         The instance structure will take a pointer to the application structure and the lists of the required layers/extensions.
                         <div class="code-box">
                             <pre>
@@ -409,7 +409,7 @@
                         <b>4 - Creating the Vulkan device:</b>
                     </div>
                     <p>
-                        Once the physical device is determined, we have to create a Vulkan device for that physical device.
+                        Once the physical device is determined, we have to create a logical device.
                     </p>
                     <br>
                     <p>
@@ -444,7 +444,7 @@
                     </p>
                     <br>
                     <p>
-                        Note that we require the <code>VK_KHR_SWAPCHAIN_EXTENSION_NAME</code> extension when creating the device, because we will be creating a swapchain on this device.
+                        Note that we require the <code>VK_KHR_SWAPCHAIN_EXTENSION_NAME</code> extension when creating the logical device, because we will be creating a swapchain on this device.
                     </p>
                     <br>
                     <p>
@@ -515,7 +515,7 @@
                         A command pool, represented by the structure <code>VkCommandPool</code>, is used to allocate command buffers. Command buffers, represented by the structure
                         <code>VkCommandBuffer</code>, are used to record commands for rendering and doing other graphics operations. A command pool can be used to allocate many command buffers,
                         but we will only need one for our simple app. And lastly, the fence is used for syncronizing work between the CPU and GPU. We will give Vulkan this fence object
-                        when we submit work to the GPU, and this fence will get signalled once the workload finishes. This will let us wait on the fence for the submission to finish.
+                        when we submit work to the GPU, and this fence will get signalled once the workload finishes. This will let us syncronize the CPU by waiting on the fence for the submission to finish.
                         <div class="code-box">
                             <pre>
                                 <span> 1.</span><code><div class="datatype">VkCommandPool</div><div>                       CommandPool { </div><div class="keyword">nullptr</div><div> };</div></code>
@@ -570,9 +570,9 @@
                     </p>
                     <br>
                     <p>
-                        These categories are not mutually exclusive. Most discrete GPUs have their own local video memory (VRAM) which is efficient to access, but only a portion of that is accessible
-                        from the CPU. Integrated GPUs on the other hand, can see the entire system memory as both local and CPU visible. Resizable bar can also give the CPU access to the entire GPU memory,
-                        but here we assume that is not being used. A very common and simple solution to manage this case, is to use the large local CPU invisible memory as the primary heap, and use the small
+                        These categories are not mutually exclusive. Most discrete GPUs have their own local video memory (VRAM) which is optimal for GPU access, but only a portion of that is accessible
+                        from the CPU. Integrated GPUs on the other hand, can see the entire system memory as both local and CPU visible. Resizable bar can also give the CPU access to the entire GPU VRAM,
+                        but here we assume that is not being used. A very common and simple solution is to use the large local CPU invisible memory as the primary heap, and use the small
                         local CPU visible memory as a staging area. Data will first be copied to the staging area using the CPU, and then transferred from the staging area to the primary heap using the GPU.
                     </p>
                     <br>
@@ -657,7 +657,7 @@
                     </p>
                     <br>
                     <p>
-                        This is the helper function used above, which allocates memory directly from a heaps given its index. This will be useful for other allocations
+                        This is the helper function used above, which allocates memory directly from a heap given its index. This will be useful for other allocations
                         as well, such as the vertex buffer, and any other future allocations we need.
                         <div class="code-box">
                             <pre>
@@ -711,7 +711,7 @@
                         After we create the surface, we need to check if our required surface formats and presentation mode are supported. The surface format
                         is the format of the swapchain images, in our case <code>VK_FORMAT_B8G8R8A8_UNORM</code>, which gives 8 bits to each red/green/blue/alpha component.
                         The presentation mode controls how the images of the swapchain are presented. We will be using <code>VK_PRESENT_MODE_FIFO_KHR</code>, which will present the swapchain images one by one in a queue
-                        and will only present an image once the previous one has been fully presented (i.e. vertical sync).
+                        and will only present an image once the previous one has been fully presented (i.e. vertically synced).
                         <div class="code-box">
                             <pre>
                                 <span> 1.</span><code><div class="keyword">uint32_t</div><div> PresentModeCount = </div><div class="number">0</div><div>;</div></code>
@@ -1024,7 +1024,7 @@
                     <p>
                         The next step is to create the buffer, allocate the memory, and bind the memory to that new buffer. Vulkan requires the buffer creation and memory allocation to be seperate because
                         it gives the programmer flexibility for memory management. For example, if we want, we can create a single memory allocation and sub-allocate that amoungst different buffers. Note that we
-                        are using the <code>AllocateMemory</code> function we created in section 6 to allocate the memory in our primary heap.
+                        are using the <code>AllocateMemory</code> helper function we created in section 6 to allocate the memory in our primary heap.
                         <div class="code-box">
                             <pre>
                                 <span> 1.</span><code><div class="datatype">VkBufferCreateInfo</div><div> BufferInfo =</div></code>
@@ -1317,13 +1317,13 @@
                                 <span>13.</span><code><div>        .location = </div><div class="number">0</div><div>,</div></code>
                                 <span>14.</span><code><div>        .binding = </div><div class="number">0</div><div>,</div></code>
                                 <span>15.</span><code><div>        .format = </div><div class="enum">VK_FORMAT_R32G32B32_SFLOAT</div><div>,</div></code>
-                                <span>16.</span><code><div>        .offset = offsetof(Vertex, position)</div></code>
+                                <span>16.</span><code><div>        .offset = </div><div class="keyword">offsetof</div><div>(Vertex, position)</div></code>
                                 <span>17.</span><code><div>    },</div></code>
                                 <span>18.</span><code><div>    {</div></code>
                                 <span>19.</span><code><div>        .location = </div><div class="number">1</div><div>,</div></code>
                                 <span>20.</span><code><div>        .binding = </div><div class="number">0</div><div>,</div></code>
                                 <span>21.</span><code><div>        .format = </div><div class="enum">VK_FORMAT_R32G32B32_SFLOAT</div><div>,</div></code>
-                                <span>22.</span><code><div>        .offset = offsetof(Vertex, color)</div></code>
+                                <span>22.</span><code><div>        .offset = </div><div class="keyword">offsetof</div><div>(Vertex, color)</div></code>
                                 <span>23.</span><code><div>    }</div></code>
                                 <span>24.</span><code><div>};</div></code>
                                 <span>25.</span><code></code>
@@ -1409,7 +1409,7 @@
                         which triangles are considered facing "front". We use <code>VK_FRONT_FACE_COUNTER_CLOCKWISE</code>, which means that triangles with their vertices ordered in
                         a counter clockwise order will be considered to be facing the front. This is important because we can use an important optimization called
                         back face culling, which will skip rendering triangles facing away from the viewer. Back face culling can be enabled by setting the <code>cullMode</code>
-                        to <code>VK_CULL_MODE_BACK_BIT</code>. This won't affect this program since our triangle always faces in front, but eventually when we start rendering models
+                        to <code>VK_CULL_MODE_BACK_BIT</code>. This won't affect this program since our triangle always faces in front, but eventually when we start rendering 3D models/scenes
                         it will matter. The rest of the options will be left to the defaults/zero.
                         <div class="code-box">
                             <pre>
