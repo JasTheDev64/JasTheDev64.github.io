@@ -259,7 +259,7 @@
                                 <span>10.</span><code><div>    </div><div class="keyword">static</div><div> </div><div class="datatype">VkBool32</div><div> VulkanDebugReportCb(</div><div class="datatype">VkDebugReportFlagsEXT</div><div> flags, </div><div class="datatype">VkDebugReportObjectTypeEXT</div><div> objectType, </div><div class="keyword">uint64_t</div><div> object, </div><div class="keyword">size_t</div><div> location, </div><div class="keyword">int32_t</div><div> messageCode, </div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>* pLayerPrefix, </div><div class="keyword">const</div><div> </div><div class="keyword">char</div><div>* pMessage, </div><div class="keyword">void</div><div>* pUserData)</div></code>
                                 <span>11.</span><code><div>    {</div></code>
                                 <span>12.</span><code><div>        printf(</div><div class="string">"%s: %s\n"</div><div>, pLayerPrefix, pMessage);</div></code>
-                                <span>13.</span><code><div>        return </div><div class="enum">VK_TRUE</div><div>;</div></code>
+                                <span>13.</span><code><div>        </div><div class="keyword">return</div><div> </div><div class="enum">VK_TRUE</div><div>;</div></code>
                                 <span>14.</span><code><div>    }</div></code>
                                 <span>15.</span><code><div class="preprocessor">#endif</div></code>
                                 <span>16.</span><code></code>
@@ -390,7 +390,7 @@
                                 <span>69.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.PreferenceIndex, rhs.PreferenceIndex);</div></code>
                                 <span>70.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.NumGraphicsQueues, rhs.NumGraphicsQueues);</div></code>
                                 <span>71.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.LocalHeapSize, rhs.LocalHeapSize);</div></code>
-                                <span>72.</span><code><div>        </div><div class="datatype">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
+                                <span>72.</span><code><div>        </div><div class="keyword">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
                                 <span>73.</span><code><div>    }</div></code>
                                 <span>74.</span><code><div>);</div></code>
                                 <span>75.</span><code><div class="preprocessor">#undef CMP</div></code>
