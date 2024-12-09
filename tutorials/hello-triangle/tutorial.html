@@ -518,9 +518,9 @@
                         when we submit work to the GPU, and this fence will get signalled once the workload finishes. This will let us syncronize the CPU by waiting on the fence for the submission to finish.
                         <div class="code-box">
                             <pre>
-                                <span> 1.</span><code><div class="datatype">VkCommandPool</div><div>                       CommandPool { </div><div class="keyword">nullptr</div><div> };</div></code>
-                                <span> 2.</span><code><div class="datatype">VkCommandBuffer</div><div>                     CommandBuffer { </div><div class="keyword">nullptr</div><div> };</div></code>
-                                <span> 3.</span><code><div class="datatype">VkFence</div><div>                             Fence { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 1.</span><code><div class="datatype">VkCommandPool</div><div>   CommandPool { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 2.</span><code><div class="datatype">VkCommandBuffer</div><div> CommandBuffer { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 3.</span><code><div class="datatype">VkFence</div><div>         Fence { </div><div class="keyword">nullptr</div><div> };</div></code>
                                 <span> 4.</span><code></code>
                                 <span> 5.</span><code><div>...</div></code>
                                 <span> 6.</span><code></code>
@@ -580,8 +580,8 @@
                         We first need to get the device's memory properties, using <code>vkGetPhysicalDeviceMemoryProperties</code>, and then we can figure out the most optimal heaps available on the GPU.
                         <div class="code-box">
                             <pre>
-                                <span> 1.</span><code><div class="keyword">uint32_t</div><div>                         PrimaryHeapIndex { </div><div class="enum">UINT32_MAX</div><div> };</div></code>
-                                <span> 2.</span><code><div class="keyword">uint32_t</div><div>                         UploadHeapIndex { </div><div class="enum">UINT32_MAX</div><div> };</div></code>
+                                <span> 1.</span><code><div class="keyword">uint32_t</div><div> PrimaryHeapIndex { </div><div class="enum">UINT32_MAX</div><div> };</div></code>
+                                <span> 2.</span><code><div class="keyword">uint32_t</div><div> UploadHeapIndex  { </div><div class="enum">UINT32_MAX</div><div> };</div></code>
                                 <span> 3.</span><code></code>
                                 <span> 4.</span><code><div class="datatype">VkPhysicalDeviceMemoryProperties</div><div> MemoryProperties {};</div></code>
                                 <span> 5.</span><code></code>
@@ -624,11 +624,11 @@
                         CPU can access it.
                         <div class="code-box">
                             <pre>
-                                <span> 1.</span><code><div class="datatype">VkBuffer</div><div>                            UploadBuffer { </div><div class="keyword">nullptr</div><div> };</div></code>
-                                <span> 2.</span><code><div class="datatype">VkDeviceMemory</div><div>                      UploadBufferMemory { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 1.</span><code><div class="datatype">VkBuffer</div><div>       UploadBuffer { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 2.</span><code><div class="datatype">VkDeviceMemory</div><div> UploadBufferMemory { </div><div class="keyword">nullptr</div><div> };</div></code>
                                 <span> 3.</span><code></code>
-                                <span> 4.</span><code><div class="keyword">uint64_t</div><div>                            UploadBufferSize { </div><div class="number">0</div><div> };</div></code>
-                                <span> 5.</span><code><div class="keyword">void</div><div>*                               UploadBufferCpuVA { </div><div class="keyword">nullptr</div><div> };</div></code>
+                                <span> 4.</span><code><div class="keyword">uint64_t</div><div>       UploadBufferSize { </div><div class="number">0</div><div> };</div></code>
+                                <span> 5.</span><code><div class="keyword">void</div><div>*          UploadBufferCpuVA { </div><div class="keyword">nullptr</div><div> };</div></code>
                                 <span> 6.</span><code></code>
                                 <span> 7.</span><code><div>...</div></code>
                                 <span> 8.</span><code></code>
