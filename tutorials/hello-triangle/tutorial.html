@@ -385,18 +385,19 @@
                                 <span>64.</span><code><div>Assert(PhysicalDevices.size() &gt; </div><div class="number">0</div><div>, </div><div class="string">"Could not find a supported GPU"</div><div>);</div></code>
                                 <span>65.</span><code></code>
                                 <span>66.</span><code><div class="preprocessor">#define COMPARE(a, b) { if ((a) > (b)) { return true; } else if ((a) < (b)) { return false; } }</div></code>
-                                <span>67.</span><code><div>std::sort(PhysicalDevices.begin(), PhysicalDevices.end(), [](</div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; lhs,</div></code>
-                                <span>68.</span><code><div>    </div><div class="keyword">const</div><div> PhysicalDeviceInfo&amp; rhs) &minus;&gt; </div><div class="keyword">bool</div><div> {</div></code>
-                                <span>69.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.PreferenceIndex, rhs.PreferenceIndex);</div></code>
-                                <span>70.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.NumGraphicsQueues, rhs.NumGraphicsQueues);</div></code>
-                                <span>71.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.LocalHeapSize, rhs.LocalHeapSize);</div></code>
-                                <span>72.</span><code><div>        </div><div class="keyword">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
-                                <span>73.</span><code><div>    }</div></code>
-                                <span>74.</span><code><div>);</div></code>
-                                <span>75.</span><code><div class="preprocessor">#undef COMPARE</div></code>
-                                <span>76.</span><code></code>
-                                <span>77.</span><code><div>PhysicalDevice = PhysicalDevices[</div><div class="number">0</div><div>].Handle;</div></code>
-                                <span>78.</span><code><div>GraphicsQueueGroup = PhysicalDevices[</div><div class="number">0</div><div>].GraphicsQueueGroup;</div></code>
+                                <span>67.</span><code><div>std::sort(PhysicalDevices.begin(), PhysicalDevices.end(),</div></code>
+                                <span>68.</span><code><div>    [](</div><div class="keyword">const</div><div> </div><div class="datatype">PhysicalDeviceInfo</div><div>&amp; lhs, </div><div class="keyword">const</div><div> </div><div class="datatype">PhysicalDeviceInfo</div><div>&amp; rhs) &minus;&gt; </div><div class="keyword">bool</div></code>
+                                <span>69.</span><code><div>    {</div></code>
+                                <span>70.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.PreferenceIndex, rhs.PreferenceIndex);</div></code>
+                                <span>71.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.NumGraphicsQueues, rhs.NumGraphicsQueues);</div></code>
+                                <span>72.</span><code><div>        </div><div class="enum">COMPARE</div><div>(lhs.LocalHeapSize, rhs.LocalHeapSize);</div></code>
+                                <span>73.</span><code><div>        </div><div class="keyword">return</div><div> </div><div class="keyword">false</div><div>;</div></code>
+                                <span>74.</span><code><div>    }</div></code>
+                                <span>75.</span><code><div>);</div></code>
+                                <span>76.</span><code><div class="preprocessor">#undef COMPARE</div></code>
+                                <span>77.</span><code></code>
+                                <span>78.</span><code><div>PhysicalDevice = PhysicalDevices[</div><div class="number">0</div><div>].Handle;</div></code>
+                                <span>79.</span><code><div>GraphicsQueueGroup = PhysicalDevices[</div><div class="number">0</div><div>].GraphicsQueueGroup;</div></code>
                             </pre>
                         </div>
                     </p>
