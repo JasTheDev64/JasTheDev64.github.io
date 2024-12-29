@@ -1204,29 +1204,34 @@
                         graphics pipeline in the next section.
                         <div class="code-box">
                             <pre>
-                                <span> 1.</span><code><div class="datatype">VkShaderModuleCreateInfo</div><div> VertexShaderInfo =</div></code>
-                                <span> 2.</span><code><div>{</div></code>
-                                <span> 3.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO</div><div>,</div></code>
-                                <span> 4.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
-                                <span> 5.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
-                                <span> 6.</span><code><div>    .codeSize = </div><div class="keyword">sizeof</div><div>(VertexShader),</div></code>
-                                <span> 7.</span><code><div>    .pCode = VertexShader</div></code>
-                                <span> 8.</span><code><div>};</div></code>
-                                <span> 9.</span><code></code>
-                                <span>10.</span><code><div class="datatype">VkShaderModuleCreateInfo</div><div> FragmentShaderInfo =</div></code>
-                                <span>11.</span><code><div>{</div></code>
-                                <span>12.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO</div><div>,</div></code>
-                                <span>13.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
-                                <span>14.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
-                                <span>15.</span><code><div>    .codeSize = </div><div class="keyword">sizeof</div><div>(FragmentShader),</div></code>
-                                <span>16.</span><code><div>    .pCode = FragmentShader</div></code>
-                                <span>17.</span><code><div>};</div></code>
-                                <span>18.</span><code></code>
-                                <span>19.</span><code><div class="datatype">VkShaderModule</div><div> VertexShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
-                                <span>20.</span><code><div class="datatype">VkShaderModule</div><div> FragmentShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
-                                <span>21.</span><code></code>
-                                <span>22.</span><code><div>Assert(vkCreateShaderModule(Device, &amp;VertexShaderInfo, </div><div class="keyword">nullptr</div><div>, &amp;VertexShaderModule) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create vertex shader module"</div><div>);</div></code>
-                                <span>23.</span><code><div>Assert(vkCreateShaderModule(Device, &amp;FragmentShaderInfo, </div><div class="keyword">nullptr</div><div>, &amp;FragmentShaderModule) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create fragment shader module"</div><div>);</div></code>
+                                <span> 1.</span><code><div class="preprocessor">#include "VertexShader.vert.h"</div></code>
+                                <span> 2.</span><code><div class="preprocessor">#include "FragmentShader.frag.h"</div></code>
+                                <span> 3.</span><code></code>
+                                <span> 4.</span><code><div>...</div></code>
+                                <span> 5.</span><code></code>
+                                <span> 6.</span><code><div class="datatype">VkShaderModuleCreateInfo</div><div> VertexShaderInfo =</div></code>
+                                <span> 7.</span><code><div>{</div></code>
+                                <span> 8.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO</div><div>,</div></code>
+                                <span> 9.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>10.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>11.</span><code><div>    .codeSize = </div><div class="keyword">sizeof</div><div>(VertexShader),</div></code>
+                                <span>12.</span><code><div>    .pCode = VertexShader</div></code>
+                                <span>13.</span><code><div>};</div></code>
+                                <span>14.</span><code></code>
+                                <span>15.</span><code><div class="datatype">VkShaderModuleCreateInfo</div><div> FragmentShaderInfo =</div></code>
+                                <span>16.</span><code><div>{</div></code>
+                                <span>17.</span><code><div>    .sType = </div><div class="enum">VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO</div><div>,</div></code>
+                                <span>18.</span><code><div>    .pNext = </div><div class="keyword">nullptr</div><div>,</div></code>
+                                <span>19.</span><code><div>    .flags = </div><div class="number">0</div><div>,</div></code>
+                                <span>20.</span><code><div>    .codeSize = </div><div class="keyword">sizeof</div><div>(FragmentShader),</div></code>
+                                <span>21.</span><code><div>    .pCode = FragmentShader</div></code>
+                                <span>22.</span><code><div>};</div></code>
+                                <span>23.</span><code></code>
+                                <span>24.</span><code><div class="datatype">VkShaderModule</div><div> VertexShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span>25.</span><code><div class="datatype">VkShaderModule</div><div> FragmentShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
+                                <span>26.</span><code></code>
+                                <span>27.</span><code><div>Assert(vkCreateShaderModule(Device, &amp;VertexShaderInfo, </div><div class="keyword">nullptr</div><div>, &amp;VertexShaderModule) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create vertex shader module"</div><div>);</div></code>
+                                <span>28.</span><code><div>Assert(vkCreateShaderModule(Device, &amp;FragmentShaderInfo, </div><div class="keyword">nullptr</div><div>, &amp;FragmentShaderModule) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Could not create fragment shader module"</div><div>);</div></code>
                             </pre>
                         </div>
                     </p>
