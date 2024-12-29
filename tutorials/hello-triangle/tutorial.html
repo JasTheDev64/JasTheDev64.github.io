@@ -1103,8 +1103,7 @@
                     </p>
                     <br>
                     <p>
-                        After the command buffer has been prepared, we can submit it to the graphics queue we created in sections 4 and 5. Note that Vulkan supports dedicated transfer queues, which may be
-                        more optimized for such copy operations, but we will not be using them in this example. We fill out the structure <code>VkSubmitInfo</code> with the command buffer we prepared, and call
+                        After the command buffer has been prepared, we can submit it to the graphics queue we created in sections 4 and 5. We fill out the structure <code>VkSubmitInfo</code> with the command buffer we prepared, and call
                         <code>vkQueueSubmit</code>, along with the fence we created in section 5. After this submission, we wait for the submission to finish by waiting on the fence using <code>vkWaitForFences</code>.
                         Note that we have to reset the fence after this, using <code>vkResetFences</code>, so that it can be used again for future submissions.
                         <div class="code-box">
