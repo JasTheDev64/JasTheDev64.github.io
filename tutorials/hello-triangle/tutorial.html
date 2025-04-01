@@ -356,14 +356,14 @@
                                 <span>36.</span><code><div>    vkGetPhysicalDeviceQueueFamilyProperties(DeviceHandles[i], &amp;QueueCount, QueueGroups.data());</div></code>
                                 <span>37.</span><code></code>
                                 <span>38.</span><code><div>    std::map&lt;VkPhysicalDeviceType, </div><div class="keyword">uint32_t</div><div>&gt;::</div><div class="datatype">const_iterator</div><div> it = PreferenceOrder.find(DeviceProperties.deviceType);</div></code>
-                                <span>39.</span><code><div>    if (it != PreferenceOrder.end())</div></code>
+                                <span>39.</span><code><div>    </div><div class="keyword">if</div><div> (it != PreferenceOrder.end())</div></code>
                                 <span>40.</span><code><div>    {</div></code>
                                 <span>41.</span><code><div>        DeviceInfo.PreferenceIndex = it&minus;&gt;second;</div></code>
                                 <span>42.</span><code><div>    }</div></code>
                                 <span>43.</span><code></code>
                                 <span>44.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; QueueGroups.size(); j++)</div></code>
                                 <span>45.</span><code><div>    {</div></code>
-                                <span>46.</span><code><div>        if (QueueGroups[j].queueFlags &amp; </div><div class="enum">VK_QUEUE_GRAPHICS_BIT</div><div>)</div></code>
+                                <span>46.</span><code><div>        </div><div class="keyword">if</div><div> (QueueGroups[j].queueFlags &amp; </div><div class="enum">VK_QUEUE_GRAPHICS_BIT</div><div>)</div></code>
                                 <span>47.</span><code><div>        {</div></code>
                                 <span>48.</span><code><div>            DeviceInfo.GraphicsQueueGroup = std::min(DeviceInfo.GraphicsQueueGroup, j); </div><div class="comment">// Pick the first (minimum) available group, we only use 1 gfx queue, so the group does not matter</div></code>
                                 <span>49.</span><code><div>            DeviceInfo.NumGraphicsQueues += QueueGroups[j].queueCount;</div></code>
@@ -372,7 +372,7 @@
                                 <span>52.</span><code></code>
                                 <span>53.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> j = </div><div class="number">0</div><div>; j &lt; MemoryProperties.memoryHeapCount; j++)</div></code>
                                 <span>54.</span><code><div>    {</div></code>
-                                <span>55.</span><code><div>        if (MemoryProperties.memoryHeaps[j].flags &amp; </div><div class="enum">VK_MEMORY_HEAP_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>55.</span><code><div>        </div><div class="keyword">if</div><div> (MemoryProperties.memoryHeaps[j].flags &amp; </div><div class="enum">VK_MEMORY_HEAP_DEVICE_LOCAL_BIT</div><div>)</div></code>
                                 <span>56.</span><code><div>        {</div></code>
                                 <span>57.</span><code><div>            DeviceInfo.LocalHeapSize += MemoryProperties.memoryHeaps[j].size;</div></code>
                                 <span>58.</span><code><div>        }</div></code>
@@ -593,18 +593,18 @@
                                 <span>11.</span><code><div>{</div></code>
                                 <span>12.</span><code><div>    </div><div class="keyword">uint64_t</div><div> HeapSize = MemoryProperties.memoryHeaps[MemoryProperties.memoryTypes[i].heapIndex].size;</div></code>
                                 <span>13.</span><code></code>
-                                <span>14.</span><code><div>    if (MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>14.</span><code><div>    </div><div class="keyword">if</div><div> (MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
                                 <span>15.</span><code><div>    {</div></code>
-                                <span>16.</span><code><div>        if ((PrimaryHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[PrimaryHeapIndex].size))</div></code>
+                                <span>16.</span><code><div>        </div><div class="keyword">if</div><div> ((PrimaryHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[PrimaryHeapIndex].size))</div></code>
                                 <span>17.</span><code><div>        {</div></code>
                                 <span>18.</span><code><div>            PrimaryHeapIndex = MemoryProperties.memoryTypes[i].heapIndex;</div></code>
                                 <span>19.</span><code><div>        }</div></code>
                                 <span>20.</span><code><div>    }</div></code>
                                 <span>21.</span><code></code>
-                                <span>22.</span><code><div>    if ((MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>22.</span><code><div>    </div><div class="keyword">if</div><div> ((MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
                                 <span>23.</span><code><div>        &amp;&amp; (MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</div><div>))</div></code>
                                 <span>24.</span><code><div>    {</div></code>
-                                <span>25.</span><code><div>        if ((UploadHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[UploadHeapIndex].size))</div></code>
+                                <span>25.</span><code><div>        </div><div class="keyword">if</div><div> ((UploadHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[UploadHeapIndex].size))</div></code>
                                 <span>26.</span><code><div>        {</div></code>
                                 <span>27.</span><code><div>            UploadHeapIndex = MemoryProperties.memoryTypes[i].heapIndex;</div></code>
                                 <span>28.</span><code><div>            UploadBufferSize = std::min(</div><div class="enum">ALIGN</div><div>(HeapSize / </div><div class="number">4</div><div>, </div><div class="enum">MB</div><div>), </div><div class="keyword">static_cast</div><div>&lt;</div><div class="keyword">uint64_t</div><div>&gt;(</div><div class="number">16</div><div> * </div><div class="enum">MB</div><div>));</div></code>
@@ -665,7 +665,7 @@
                                 <span> 2.</span><code><div>{</div></code>
                                 <span> 3.</span><code><div>    </div><div class="keyword">for</div><div> (</div><div class="keyword">uint32_t</div><div> i = </div><div class="number">0</div><div>; i &lt; MemoryProperties.memoryTypeCount; i++)</div></code>
                                 <span> 4.</span><code><div>    {</div></code>
-                                <span> 5.</span><code><div>        if ((rMemoryRequirements.memoryTypeBits &amp; (</div><div class="number">1</div><div> &lt;&lt; i))</div></code>
+                                <span> 5.</span><code><div>        </div><div class="keyword">if</div><div> ((rMemoryRequirements.memoryTypeBits &amp; (</div><div class="number">1</div><div> &lt;&lt; i))</div></code>
                                 <span> 6.</span><code><div>            &amp;&amp; ((MemoryProperties.memoryTypes[i].propertyFlags &amp; Flags) == Flags)</div></code>
                                 <span> 7.</span><code><div>            &amp;&amp; (MemoryProperties.memoryTypes[i].heapIndex == HeapIndex))</div></code>
                                 <span> 8.</span><code><div>        {</div></code>
@@ -730,7 +730,7 @@
                                 <span>12.</span><code></code>
                                 <span>13.</span><code><div class="keyword">for</div><div> (std::vector&lt;VkSurfaceFormatKHR&gt;::</div><div class="datatype">const_iterator</div><div> it = SurfaceFormats.begin(); it != SurfaceFormats.end(); it++)</div></code>
                                 <span>14.</span><code><div>{</div></code>
-                                <span>15.</span><code><div>    if (it&minus;&gt;format == </div><div class="enum">VK_FORMAT_B8G8R8A8_UNORM</div><div>) { SurfaceFormat = *it; </div><div class="keyword">break</div><div>; }</div></code>
+                                <span>15.</span><code><div>    </div><div class="keyword">if</div><div> (it&minus;&gt;format == </div><div class="enum">VK_FORMAT_B8G8R8A8_UNORM</div><div>) { SurfaceFormat = *it; </div><div class="keyword">break</div><div>; }</div></code>
                                 <span>16.</span><code><div>}</div></code>
                                 <span>17.</span><code></code>
                                 <span>18.</span><code><div>Assert(SurfaceFormat.format != </div><div class="enum">VK_FORMAT_UNDEFINED</div><div>, </div><div class="string">"Could not find required surface format"</div><div>);</div></code>
@@ -1572,13 +1572,13 @@
                         Once the graphics pipeline is created, we can free the shader modules.
                         <div class="code-box">
                             <pre>
-                                <span> 1.</span><code><div>if (VertexShaderModule != </div><div class="keyword">nullptr</div><div>)</div></code>
+                                <span> 1.</span><code><div class="keyword">if</div><div> (VertexShaderModule != </div><div class="keyword">nullptr</div><div>)</div></code>
                                 <span> 2.</span><code><div>{</div></code>
                                 <span> 3.</span><code><div>    vkDestroyShaderModule(Device, VertexShaderModule, </div><div class="keyword">nullptr</div><div>);</div></code>
                                 <span> 4.</span><code><div>    VertexShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
                                 <span> 5.</span><code><div>}</div></code>
                                 <span> 6.</span><code></code>
-                                <span> 7.</span><code><div>if (FragmentShaderModule != </div><div class="keyword">nullptr</div><div>)</div></code>
+                                <span> 7.</span><code><div class="keyword">if</div><div> (FragmentShaderModule != </div><div class="keyword">nullptr</div><div>)</div></code>
                                 <span> 8.</span><code><div>{</div></code>
                                 <span> 9.</span><code><div>    vkDestroyShaderModule(Device, FragmentShaderModule, </div><div class="keyword">nullptr</div><div>);</div></code>
                                 <span>10.</span><code><div>    FragmentShaderModule = </div><div class="keyword">nullptr</div><div>;</div></code>
