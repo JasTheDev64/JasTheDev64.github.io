@@ -601,7 +601,7 @@
                                 <span>19.</span><code><div>        }</div></code>
                                 <span>20.</span><code><div>    }</div></code>
                                 <span>21.</span><code></code>
-                                <span>22.</span><code><div>    </div><div class="keyword">if</div><div> ((MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>)</div></code>
+                                <span>22.</span><code><div>    </div><div class="keyword">if</div><div> (((MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div>) == </div><div class="number">0</div><div>)</div></code>
                                 <span>23.</span><code><div>        &amp;&amp; (MemoryProperties.memoryTypes[i].propertyFlags &amp; </div><div class="enum">VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</div><div>))</div></code>
                                 <span>24.</span><code><div>    {</div></code>
                                 <span>25.</span><code><div>        </div><div class="keyword">if</div><div> ((UploadHeapIndex == </div><div class="enum">UINT32_MAX</div><div>) || (HeapSize &gt; MemoryProperties.memoryHeaps[UploadHeapIndex].size))</div></code>
@@ -649,7 +649,7 @@
                                 <span>23.</span><code><div class="datatype">VkMemoryRequirements</div><div> UploadBufferRequirements = {};</div></code>
                                 <span>24.</span><code><div>vkGetBufferMemoryRequirements(Device, UploadBuffer, &amp;UploadBufferRequirements);</div></code>
                                 <span>25.</span><code></code>
-                                <span>26.</span><code><div>AllocateMemory(UploadBufferRequirements, </div><div class="enum">VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</div><div> &amp; </div><div class="enum">VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</div><div>, UploadHeapIndex, UploadBufferMemory);</div></code>
+                                <span>26.</span><code><div>AllocateMemory(UploadBufferRequirements, </div><div class="enum">VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</div><div>, UploadHeapIndex, UploadBufferMemory);</div></code>
                                 <span>27.</span><code><div>Assert(vkBindBufferMemory(Device, UploadBuffer, UploadBufferMemory, </div><div class="number">0</div><div>) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to bind upload buffer memory"</div><div>);</div></code>
                                 <span>28.</span><code><div>Assert(vkMapMemory(Device, UploadBufferMemory, </div><div class="number">0</div><div>, UploadBufferSize, </div><div class="number">0</div><div>, &amp;UploadBufferCpuVA) == </div><div class="enum">VK_SUCCESS</div><div>, </div><div class="string">"Failed to map upload buffer memory"</div><div>);</div></code>
                             </pre>
